@@ -14,6 +14,7 @@ normality_test <- function(x, title, confidence=0.95)
     }
   )
 
+  writeLines(paste("size = ", length(x)))
   writeLines(paste("W-statistic = ", result$statistic))
   writeLines(paste("P-value = ", result$p.value))
   if (!is.nan(result$p.value))

@@ -14,6 +14,7 @@ source("analysis.R")
 source("group_roles.R")
 source('report.R')
 source('dataset_stack.R')
+source('dataset_role.R')
 
 folders = commandArgs(trailingOnly=TRUE)
 print("Getting datasets from folders")
@@ -69,19 +70,20 @@ ds_files = c("02_preprocess/dataset_dd.tsv", "02_preprocess/dataset_jf.tsv")
 #ds_files = c("02_preprocess/dataset_jf.tsv")
 
 filename_dataset = "dataset.tsv"
-#concatenate_datasets(folders, filename_dataset, ds_files)
+concatenate_datasets(folders, filename_dataset, ds_files)
 
+###############################################################3
 filename_dataset_stack = "dataset_stack.tsv"
 dataset_stack(filename_dataset, filename_dataset_stack)
 
 ###############################################################3
-#folder_names = get_folder_names(df)
-#stats_df = create_SI_dataframe(df, folder_names)
-#result = get_stats(stats_df)
-#print(result)
+filename_dataset_role = "dataset_role.tsv"
+dataset_role(filename_dataset, filename_dataset_role)
 
+###############################################################3
 df = load_data(filename_dataset)
 df_stack = load_data(filename_dataset_stack)
+df_role = load_data(filename_dataset_role)
 
 confidence = 0.95
 prompt     = 0
@@ -89,7 +91,7 @@ inputFile     = filename_dataset
 outputDir      = "saida"
 outputFile     = "report.html"
 
-report(inputFile, outputFile, outputDir, df, df_stack, confidence, prompt)
+report(inputFile, outputFile, outputDir, df, df_stack, df_role, confidence, prompt)
 
 
 ###############################################################3

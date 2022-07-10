@@ -1,4 +1,4 @@
-report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.95, prompt=1)
+report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, confidence=0.95, prompt=1)
 {
   source('print_separator.R')
   source('generate_summary.R')
@@ -8,8 +8,11 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.
   source('plot_correlationts.R')
   source('report_pdc.R')
   source('plot_pdc.R')
-  source('script.R')
+  #source('script.R')
   #source('plot_power.R')
+
+  DANTAS = TRUE
+  FELIPE = FALSE
   
   outputFullname = paste(outputDir, "/", outputFile, sep="")
   sink(file=NULL)
@@ -27,8 +30,12 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.
   writeLines("")
 
   ##########
+  options(width = 200)
+  prompt = 0
+
+  ##########
   print_separator()
-  writeLines(paste("<h2>Descriptive statistics</h2>", sep=""))
+  writeLines(paste("<h2>Descriptive statistics in original dataset</h2>", sep=""))
 
   cols = c(seq(10, 17), seq(21, 28))
   #cols_disparsion = c(32, 36, 43, seq(44, 46), seq(57, 68))
@@ -36,11 +43,9 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.
   #min_num_col = 4
   #max_num_col = 68
 
-  options(width = 200)
-
   ##########
   writeLines("...")
-  writeLines("Descriptive statistics from each column")
+  writeLines("Descriptive statistics from each column in original dataset")
   writeLines("")
 
   print(generate_summary(df[cols]))
@@ -98,21 +103,26 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.
 
   #rows
   conditions = rbind(
-    c("df$folder != ''",                                  "all",  "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b001', 'b002', 'b003', 'b004')", "ex01", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b009', 'b010', 'b011', 'b012')", "ex03", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b013', 'b014', 'b015', 'b016')", "ex04", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b017', 'b018', 'b019', 'b020')", "ex05", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b021', 'b022', 'b023', 'b024')", "ex06", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b025', 'b026', 'b027', 'b028')", "ex07", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b029', 'b030', 'b031', 'b032')", "ex08", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b033', 'b034', 'b035', 'b036')", "ex09", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11", "Subject 1", "Subject 2") )
+    c("df$folder != ''",                                  "all",             "Subject 1", "Subject 2"),
+
+    c("df$label == 'NVNM'",                               "label_nvnm",      "Subject 1", "Subject 2"),
+    c("df$label == 'NVM'",                                "label_nvm",       "Subject 1", "Subject 2"),
+    c("df$label == 'Prelude'",                            "label_prelude",   "Subject 1", "Subject 2"),
+    c("df$label == 'Interlude'",                          "label_interlude", "Subject 1", "Subject 2"),
+
+    c("df$folder %in% c('b001', 'b002', 'b003', 'b004')", "ex01",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b009', 'b010', 'b011', 'b012')", "ex03",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b013', 'b014', 'b015', 'b016')", "ex04",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b017', 'b018', 'b019', 'b020')", "ex05",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b021', 'b022', 'b023', 'b024')", "ex06",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b025', 'b026', 'b027', 'b028')", "ex07",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b029', 'b030', 'b031', 'b032')", "ex08",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b033', 'b034', 'b035', 'b036')", "ex09",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11",            "Subject 1", "Subject 2")  )
   
-  prompt = 0
-  #for (c in seq(1, dim(conditions)[1]))
-  for (c in seq(1))
+  #for (c in seq(1))
+  for (c in seq(1, dim(conditions)[1]))
   {
     rows = eval(parse(text=conditions[c, 1]))
     exp_label = conditions[c, 2]
@@ -129,28 +139,62 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.
       writeLines("...")
       writeLines(paste("<h3>", str_title, "</h3>", sep=""))
 
-      # report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
-      #writeLines(paste("plot_test_control: ", names(df)[i]))
-      # plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
+      if (DANTAS)
+      {
+        report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
+        plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
+      }
     }
   }
+
+  ##########
+  print_separator()
+  writeLines(paste("<h2>Descriptive statistics in stacked dataset</h2>", sep=""))
+
+  cols_stack = c(seq(10, 13), seq(16, 19))
+
+  ##########
+  writeLines("...")
+  writeLines("Descriptive statistics from each column in stacked dataset")
+  writeLines("")
+
+  print(generate_summary(df_stack[cols_stack]))
+  writeLines("")
+
   ##########
   print_separator()
   writeLines(paste("<h2>Distributions of Test and Control groups in stacked dataset</h2>", sep=""))
 
   #rows
   conditions = rbind(
-    c("df_stack$Gender == 'M'", "df_stack$Gender == 'F'", "gender", "Male", "Female", "male", "female") )
+    c("df_stack$Gender == 'M'",         "df_stack$Gender == 'F'",         "gender",    "Male",       "Female",     "male",      "female"),
 
-  #cols
-  cols_stack = c(seq(10, 13), seq(16, 19))
+    c("df_stack$block == 'block0'",     "df_stack$block == 'block1'",     "block",     "Block 0",    "Block 1",    "block0",    "block1"),
+    c("df_stack$block == 'block0'",     "df_stack$block == 'block2'",     "block",     "Block 0",    "Block 2",    "block0",    "block2"),
+    c("df_stack$block == 'block0'",     "df_stack$block == 'block3'",     "block",     "Block 0",    "Block 3",    "block0",    "block3"),
+    c("df_stack$block == 'block1'",     "df_stack$block == 'block2'",     "block",     "Block 1",    "Block 2",    "block1",    "block2"),
+    c("df_stack$block == 'block1'",     "df_stack$block == 'block3'",     "block",     "Block 1",    "Block 3",    "block1",    "block3"),
+    c("df_stack$block == 'block2'",     "df_stack$block == 'block3'",     "block",     "Block 2",    "Block 3",    "block2",    "block3"),
 
-  prompt = 0
-  #cols = c(60, 61)
+    c("df_stack$label == 'IImitator1'", "df_stack$label == 'IImitator2'", "label",     "Imitator 1", "Imitator 2", "imitator1", "imitator2"),
+    c("df_stack$label == 'IImitator1'", "df_stack$label == 'SI'",         "label",     "Imitator 1", "SI",         "imitator1", "si"),
+    c("df_stack$label == 'IImitator2'", "df_stack$label == 'SI'",         "label",     "Imitator 2", "SI",         "imitator2", "si"),
+    c("df_stack$label == 'Prelude'",    "df_stack$label == 'Interlude'",  "label",     "Prelude",    "Interlude",  "prelude",   "interlude"),
+    c("df_stack$label == 'NVNM'",       "df_stack$label == 'NVM'",        "label",     "NVNM",       "NVM",        "nvnm",      "nvm"),
+
+    c("df_stack$IsImit == TRUE",        "df_stack$IsImit == FALSE",       "IsImit",    "True",       "False",      "true",      "false"),
+
+    c("df_stack$IsSync == TRUE",        "df_stack$IsSync == FALSE",       "IsSync",    "True",       "False",      "true",      "false"),
+
+    c("df_stack$annotator == 'dd'",     "df_stack$annotator == 'jf'",     "annotator", "dd",         "jf",         "dd",        "jf")         )
+
+  #for (c in seq(1))
   for (c in seq(1, dim(conditions)[1]))
   {
     rows1 = eval(parse(text=conditions[c, 1]))
     rows2 = eval(parse(text=conditions[c, 2]))
+    rows1[is.na(rows1)] = FALSE
+    rows2[is.na(rows2)] = FALSE
     exp_label = conditions[c, 3]
     str1 = conditions[c, 4]
     str2 = conditions[c, 5]
@@ -166,8 +210,77 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.
       writeLines("...")
       writeLines(paste("<h3>", str_title, "</h3>", sep=""))
 
-      # report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
-      # plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
+      if (DANTAS)
+      {
+        report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
+        plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
+      }
+    }
+  }
+
+  ##########
+  print_separator()
+  writeLines(paste("<h2>Descriptive statistics in role dataset</h2>", sep=""))
+
+  #cols = c(seq(10, 17), seq(21, 28))
+
+  ##########
+  writeLines("...")
+  writeLines("Descriptive statistics from each column in role dataset")
+  writeLines("")
+
+  print(generate_summary(df_role[cols]))
+  writeLines("")
+
+  ##########
+  print_separator()
+  writeLines(paste("<h2>Distributions of Test and Control groups in role dataset</h2>", sep=""))
+
+  #rows
+  conditions = rbind(
+    c("df_role$folder != ''",           "all",              "Imitator", "Model"),
+    c("df_role$Gender == 'M'",          "gender_male",      "Imitator", "Model"),
+    c("df_role$Gender == 'F'",          "gender_female",    "Imitator", "Model"),
+
+    c("df_role$label == 'SI'",          "label_si",         "Imitator", "Model"),
+    c("df_role$label == 'IImitator1'",  "label_iimitator1", "Imitator", "Model"),
+    c("df_role$label == 'IImitator2'",  "label_iimitator2", "Imitator", "Model"),
+
+    #c("df_role$block == 'block0'",      "block0",           "Imitator", "Model"),
+    c("df_role$block == 'block1'",      "block1",           "Imitator", "Model"),
+    #c("df_role$block == 'block2'",      "block2",           "Imitator", "Model"),
+    c("df_role$block == 'block3'",      "block3",           "Imitator", "Model"),
+
+    c("df_role$IsSync == TRUE",         "issync_true",      "Imitator", "Model"),
+    c("df_role$IsSync == FALSE",        "issync_false",     "Imitator", "Model"),
+
+    c("df_role$annotator == 'dd'",      "annotator_dd",     "Imitator", "Model"),
+    c("df_role$annotator == 'jf'",      "annotator_jf",     "Imitator", "Model")         )
+
+  #for (c in seq(1))
+  for (c in seq(1, dim(conditions)[1]))
+  {
+    rows = eval(parse(text=conditions[c, 1]))
+    rows[is.na(rows)] = FALSE
+    exp_label = conditions[c, 2]
+    str1 = conditions[c, 3]
+    str2 = conditions[c, 4]
+
+    for (i in seq(1, length(cols), by = 2))
+    {
+      col1 = names(df_role)[cols[i]]
+      col2 = names(df_role)[cols[i + 1]]
+      data1 = df_role[rows, col1, drop=FALSE]
+      data2 = df_role[rows, col2, drop=FALSE]
+      str_title = paste("exp_", exp_label, "__", col1, "_vs_", col2, sep="")
+      writeLines("...")
+      writeLines(paste("<h3>", str_title, "</h3>", sep=""))
+
+      if (DANTAS)
+      {
+        report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
+        plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
+      }
     }
   }
 
@@ -250,9 +363,12 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, confidence=0.
       writeLines("...")
       writeLines(paste("<h3>", str_title, "</h3>", sep=""))
 
-      res = plot_pdc(data1, data2, str_title, outputDir)
-
-      report_pdc(res, str_title)
+      ## PDC
+      if (FELIPE)
+      {
+        res = plot_pdc(data1, data2, str_title, outputDir)
+        report_pdc(res, str_title)
+      }
     }
   }
 

@@ -78,6 +78,22 @@ concatenate_datasets <- function(folders, filename_output, ds_files) {
         writeLines("")
         df[(!is.na(df$IsImit) & df$IsImit == FALSE & !is.na(df$Model)), "Model"] = NA
       }
+      # If IsImit is NA, Imitator must be NA
+      n = length(df[(is.na(df$IsImit) & !is.na(df$Imitator)), "IsSync"])
+      if (n > 0)
+      {
+        writeLines(paste("Found", n, "lines with IsImit = NA and Imitator != NA. Correcting..."))
+        writeLines("")
+        df[(is.na(df$IsImit) & !is.na(df$Imitator)), "Imitator"] = NA
+      }
+      # If IsImit is NA, Model must be NA
+      n = length(df[(is.na(df$IsImit) & !is.na(df$Model)), "IsSync"])
+      if (n > 0)
+      {
+        writeLines(paste("Found", n, "lines with IsImit = NA and Model != NA. Correcting..."))
+        writeLines("")
+        df[(is.na(df$IsImit) & !is.na(df$Model)), "Model"] = NA
+      }
       # Fill Model column
       df$Model = 3 - df$Imitator
       # Fill Gender column
