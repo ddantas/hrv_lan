@@ -20,7 +20,6 @@ get_pdc <- function(df) {
     res_12$pdc <- tmp$pdc[1,2]
     res_12$p.value <- tmp$p.value[1,2]
 
-    print(c(res_12, res_12))
     # tmp <- PDC(data[,c(1,2,4)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 2 para o 1
     # res_21 <- list()
     # res_21_p <- tmp$p.value[2,1]
@@ -28,7 +27,7 @@ get_pdc <- function(df) {
 
 
     # return(c(res_12, res_21))
-    return(c(res_12, res_12))
+    return(list(res_12, res_12))
 }
 
 get_correlationts <- function(df) {
