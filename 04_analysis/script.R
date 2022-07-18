@@ -1,21 +1,21 @@
 ################################################################################
 ## Com rank
 
-get_pdc <- function(df) {
+get_pdc <- function(df_pdc) {
     
-    data <- as.matrix(df)
+    data_pdc <- as.matrix(df_pdc)
 
-    data[, 1] <- rank(data[, 1])
-    data[, 2] <- rank(data[, 2])
+    data_pdc[, 1] <- rank(data_pdc[, 1])
+    data_pdc[, 2] <- rank(data_pdc[, 2])
     # A função utiliza PDC de forma errada enquanto não temos a posição da mão dos participantes
     # para realizar a covariância. Além disso, o retorno dela foi alterado para conter variáveis dummy.
 
     ## Seleciona a ordem do VAR/PDC usando o pico da coorrelação cruzada
-    tmp <- ccf(data[,1], data[,2], plot=FALSE)
+    tmp <- ccf(data_pdc[,1], data_pdc[,2], plot=FALSE)
     p <- abs(tmp$lag[which(abs(tmp$acf) == max(abs(tmp$acf)))])
 
     # tmp <- PDC(data[,c(1,2,3)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
-    tmp <- PDC(data[,c(1,2)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
+    tmp <- PDC(data_pdc[,c(1,2)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
     res_12 <- list()
     res_12$pdc <- tmp$pdc[1,2]
     res_12$p.value <- tmp$p.value[1,2]
@@ -180,6 +180,13 @@ VAR <- function(x, p=1) {
 #'    @param plot logical indicating if plot or not the PDC
 #'    @return pvalue matrix containing the pvalues for PDC from graph i (i-th row) to graph j (j-th column)
 PDC <- function(x, p=1, srate=1, maxBoot=300, plot=FALSE) {
+    # The value of p should never be zero. If so, search for the second highest correlation.
+    # Ideally, use Akaike information criterion (AIC) or Bayesian information criretion (BIC).
+    if (p <= 0)
+    {
+      p = 1
+    }
+  
     T <- dim(x)[1]
     K <- dim(x)[2]
 

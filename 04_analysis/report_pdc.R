@@ -14,10 +14,10 @@ report_pdc <- function(res, title, confidence=0.95) {
   if (!is.nan(res[[1]]$p.value))
   {
     if (res[[1]]$p.value < significance){
-      writeLines(paste("P-value smaller than ", significance, ": THERE IS NOT statistical evidence of causality\n"), sep="")
+      writeLines(paste("P-value smaller than ", significance, ": THERE IS statistical evidence of causality\n"), sep="")
     }
     else{
-      writeLines(paste("P-value greater than ", significance, ": THERE IS statistical evidence of causality\n"), sep="")
+      writeLines(paste("P-value greater than ", significance, ": THERE IS NOT statistical evidence of causality\n"), sep="")
     }
   }
 
@@ -29,10 +29,10 @@ report_pdc <- function(res, title, confidence=0.95) {
   if (!is.nan(res[[2]]$p.value))
   {
     if (res[[2]]$p.value < significance){
-      writeLines(paste("P-value smaller than ", significance, ": THERE IS NOT statistical evidence of causality\n"), sep="")
+      writeLines(paste("P-value smaller than ", significance, ": THERE IS statistical evidence of causality\n"), sep="")
     }
     else{
-      writeLines(paste("P-value greater than ", significance, ": THERE IS statistical evidence of causality\n"), sep="")
+      writeLines(paste("P-value greater than ", significance, ": THERE IS NOT statistical evidence of causality\n"), sep="")
     }
   }
 }

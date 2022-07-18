@@ -12,6 +12,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   #source('plot_power.R')
 
   DANTAS = TRUE
+  DANTAS_PDC = TRUE
   FELIPE = FALSE
   
   outputFullname = paste(outputDir, "/", outputFile, sep="")
@@ -120,14 +121,52 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$folder %in% c('b033', 'b034', 'b035', 'b036')", "ex09",            "Subject 1", "Subject 2"),
     c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10",            "Subject 1", "Subject 2"),
     c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11",            "Subject 1", "Subject 2")  )
-  
-  #for (c in seq(1))
-  for (c in seq(1, dim(conditions)[1]))
+
+  cond_folder = rbind(
+    c("df$folder %in% c('b001', 'b002', 'b003', 'b004')", "ex01"),
+    c("df$folder %in% c('b009', 'b010', 'b011', 'b012')", "ex03"),
+    c("df$folder %in% c('b013', 'b014', 'b015', 'b016')", "ex04"),
+    c("df$folder %in% c('b017', 'b018', 'b019', 'b020')", "ex05"),
+    c("df$folder %in% c('b021', 'b022', 'b023', 'b024')", "ex06"),
+    c("df$folder %in% c('b025', 'b026', 'b027', 'b028')", "ex07"),
+    c("df$folder %in% c('b029', 'b030', 'b031', 'b032')", "ex08"),
+    c("df$folder %in% c('b033', 'b034', 'b035', 'b036')", "ex09"),
+    c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10"),
+    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11") )
+  cond_label = rbind(
+    c("df$label == 'SI'",                                 "si"),
+    c("df$label == 'IImitator1'",                         "iimitator1"),
+    c("df$label == 'IImitator2'",                         "iimitator2"),
+    c("df$label == 'NVNM'",                               "nvnm"),
+    c("df$label == 'NVM'",                                "nvm"),
+    c("df$label == 'Prelude'",                            "prelude"),
+    c("df$label == 'Interlude'",                          "interlude")  )
+  cond_annot = rbind(
+    c("df$annotator == 'dd'",                             "dd"),
+    c("df$annotator == 'jf'",                             "jf")  )
+
+
+  ic_min = nrow(conditions)
+  ica = 1
+  for (icf in seq(1, nrow(cond_folder)))
   {
-    rows = eval(parse(text=conditions[c, 1]))
-    exp_label = conditions[c, 2]
-    str1 = conditions[c, 3]
-    str2 = conditions[c, 4]
+    for (icl in seq(1, nrow(cond_label)))
+    {
+      cond_new = c(paste(cond_folder[icf, 1], ' & ', cond_label[icl, 1], ' & ',  cond_annot[ica, 1], sep=''),
+                   paste(cond_folder[icf, 2],  '_',  cond_label[icl, 2],  '_',   cond_annot[ica, 2], sep=''),
+                   "Subject 1", "Subject 2")
+      conditions = rbind(conditions, cond_new)
+    }
+  }
+  rownames(conditions) = NULL
+
+  #for (ic in seq(1))
+  for (ic in seq(1, dim(conditions)[1]))
+  {
+    rows = eval(parse(text=conditions[ic, 1]))
+    exp_label = conditions[ic, 2]
+    str1 = conditions[ic, 3]
+    str2 = conditions[ic, 4]
     
     for (i in seq(1, length(cols), by = 2))
     {
@@ -143,6 +182,11 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       {
         report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
         plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
+      }
+      if (DANTAS_PDC & ic > ic_min)
+      {
+        res = plot_pdc(data1, data2, str_title, outputDir)
+        report_pdc(res, str_title)
       }
     }
   }
@@ -188,18 +232,18 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
 
     c("df_stack$annotator == 'dd'",     "df_stack$annotator == 'jf'",     "annotator", "dd",         "jf",         "dd",        "jf")         )
 
-  #for (c in seq(1))
-  for (c in seq(1, dim(conditions)[1]))
+  for (ic in seq(1))
+  #for (ic in seq(1, dim(conditions)[1]))
   {
-    rows1 = eval(parse(text=conditions[c, 1]))
-    rows2 = eval(parse(text=conditions[c, 2]))
+    rows1 = eval(parse(text=conditions[ic, 1]))
+    rows2 = eval(parse(text=conditions[ic, 2]))
     rows1[is.na(rows1)] = FALSE
     rows2[is.na(rows2)] = FALSE
-    exp_label = conditions[c, 3]
-    str1 = conditions[c, 4]
-    str2 = conditions[c, 5]
-    label1 = conditions[c, 6]
-    label2 = conditions[c, 7]
+    exp_label = conditions[ic, 3]
+    str1 = conditions[ic, 4]
+    str2 = conditions[ic, 5]
+    label1 = conditions[ic, 6]
+    label2 = conditions[ic, 7]
     
     for (i in seq(1, length(cols_stack)))
     {
@@ -257,14 +301,14 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df_role$annotator == 'dd'",      "annotator_dd",     "Imitator", "Model"),
     c("df_role$annotator == 'jf'",      "annotator_jf",     "Imitator", "Model")         )
 
-  #for (c in seq(1))
-  for (c in seq(1, dim(conditions)[1]))
+  for (ic in seq(1))
+  #for (ic in seq(1, dim(conditions)[1]))
   {
-    rows = eval(parse(text=conditions[c, 1]))
+    rows = eval(parse(text=conditions[ic, 1]))
     rows[is.na(rows)] = FALSE
-    exp_label = conditions[c, 2]
-    str1 = conditions[c, 3]
-    str2 = conditions[c, 4]
+    exp_label = conditions[ic, 2]
+    str1 = conditions[ic, 3]
+    str2 = conditions[ic, 4]
 
     for (i in seq(1, length(cols), by = 2))
     {
@@ -313,10 +357,10 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     writeLines(paste("<h3>Correlation for ", str_title, " data</h3>", sep=""))
     writeLines("...")
 
-    for (c in seq(1, dim(conditions)[1])) {
+    for (ic in seq(1, dim(conditions)[1])) {
 
-      rows = eval(parse(text=conditions[c, 1]))
-      exp = conditions[c, 2]
+      rows = eval(parse(text=conditions[ic, 1]))
+      exp = conditions[ic, 2]
       df_data = df[rows, ]
       col1 = names(df)[j]
       col2 = names(df)[j+1]
@@ -345,13 +389,13 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10", "Subject 1", "Subject 2"),
     c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11", "Subject 1", "Subject 2") )
   
-  # for (c in seq(1, dim(conditions)[1]))
-  for (c in seq(1))
+  # for (ic in seq(1, dim(conditions)[1]))
+  for (ic in seq(1))
   {
-    rows = eval(parse(text=conditions[c, 1]))
-    exp_label = conditions[c, 2]
-    str1 = conditions[c, 3]
-    str2 = conditions[c, 4]
+    rows = eval(parse(text=conditions[ic, 1]))
+    exp_label = conditions[ic, 2]
+    str1 = conditions[ic, 3]
+    str2 = conditions[ic, 4]
     
     for (i in seq(1, length(cols), by = 2))
     {

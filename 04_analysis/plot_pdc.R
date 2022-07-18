@@ -18,8 +18,8 @@ plot_pdc <- function(data1, data2, str_title, outputDir="") {
     png(outputFullname, width=640);
   }
 
-  df = cbind(data1, data2)
-  res = get_pdc(df)
+  df_pdc = cbind(data1, data2)
+  res_pdc = get_pdc(df_pdc)
 
   if (outputDir != "")
   {
@@ -34,5 +34,5 @@ plot_pdc <- function(data1, data2, str_title, outputDir="") {
     writeLines(paste("</tr></table>", sep=""))
   }
 
-  return(res)
+  return(res_pdc)
 }

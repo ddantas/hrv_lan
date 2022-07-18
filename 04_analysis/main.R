@@ -8,6 +8,7 @@ library(stringr)
 
 library(ggplot2)
 
+GENERATE = FALSE
 
 source("utils.R")
 source("analysis.R")
@@ -70,15 +71,24 @@ ds_files = c("02_preprocess/dataset_dd.tsv", "02_preprocess/dataset_jf.tsv")
 #ds_files = c("02_preprocess/dataset_jf.tsv")
 
 filename_dataset = "dataset.tsv"
-concatenate_datasets(folders, filename_dataset, ds_files)
+if (GENERATE)
+{
+  concatenate_datasets(folders, filename_dataset, ds_files)
+}
 
 ###############################################################3
 filename_dataset_stack = "dataset_stack.tsv"
-dataset_stack(filename_dataset, filename_dataset_stack)
+if (GENERATE)
+{
+  dataset_stack(filename_dataset, filename_dataset_stack)
+}
 
 ###############################################################3
 filename_dataset_role = "dataset_role.tsv"
-dataset_role(filename_dataset, filename_dataset_role)
+if (GENERATE)
+{
+  dataset_role(filename_dataset, filename_dataset_role)
+}
 
 ###############################################################3
 df = load_data(filename_dataset)
