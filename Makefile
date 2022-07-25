@@ -29,6 +29,29 @@ runprep:
 
 runopti:
 	python3 03_optical_flow/optical_flow.py data/b002/01_sync data/b002
+	python3 03_optical_flow/optical_flow.py data/b004/01_sync data/b004
+	python3 03_optical_flow/optical_flow.py data/b006/01_sync data/b006
+	python3 03_optical_flow/optical_flow.py data/b008/01_sync data/b008
+	python3 03_optical_flow/optical_flow.py data/b010/01_sync data/b010
+	python3 03_optical_flow/optical_flow.py data/b012/01_sync data/b012
+	python3 03_optical_flow/optical_flow.py data/b014/01_sync data/b014
+	python3 03_optical_flow/optical_flow.py data/b016/01_sync data/b016
+	python3 03_optical_flow/optical_flow.py data/b018/01_sync data/b018
+	python3 03_optical_flow/optical_flow.py data/b020/01_sync data/b020
+	python3 03_optical_flow/optical_flow.py data/b022/01_sync data/b022
+	python3 03_optical_flow/optical_flow.py data/b024/01_sync data/b024
+	python3 03_optical_flow/optical_flow.py data/b026/01_sync data/b026
+	python3 03_optical_flow/optical_flow.py data/b028/01_sync data/b028
+	python3 03_optical_flow/optical_flow.py data/b030/01_sync data/b030
+	python3 03_optical_flow/optical_flow.py data/b032/01_sync data/b032
+	python3 03_optical_flow/optical_flow.py data/b034/01_sync data/b034
+	python3 03_optical_flow/optical_flow.py data/b036/01_sync data/b036
+	python3 03_optical_flow/optical_flow.py data/b038/01_sync data/b038
+	python3 03_optical_flow/optical_flow.py data/b040/01_sync data/b040
+	python3 03_optical_flow/optical_flow.py data/b042/01_sync data/b042
+	python3 03_optical_flow/optical_flow.py data/b044/01_sync data/b044
+	python3 03_optical_flow/optical_flow.py data/b046/01_sync data/b046
+	python3 03_optical_flow/optical_flow.py data/b048/01_sync data/b048
 
 # Profiling of WinOp.py
 profop:
