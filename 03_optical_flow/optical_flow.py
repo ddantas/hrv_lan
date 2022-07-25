@@ -246,7 +246,7 @@ def write_to_dataset_dense(filename_input, filename_output):
 
   import numpy as np
   import cv2
-  import my
+  #import my
 
   arr_l_cx = []
   arr_l_cy = []
