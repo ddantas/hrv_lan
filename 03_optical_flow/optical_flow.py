@@ -31,6 +31,7 @@ import Data
 import const as k
 import utils
 
+DISPLAY = False
 
 def create_data_file(
     arr_l_cx, arr_l_cy, arr_l_vx, arr_l_vy, arr_l_npix,
@@ -62,7 +63,8 @@ def write_to_dataset0(filename_input, filename_output):
     if (ret):
       gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
       gray[0:24, :] = 0
-      cv2.imshow('frame', gray)
+      if (DISPLAY):
+        cv2.imshow('frame', gray)
       if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     f += 1
@@ -70,8 +72,8 @@ def write_to_dataset0(filename_input, filename_output):
       break
 
   cap.release()
-  cv2.destroyAllWindows()
-
+  if (DISPLAY):
+    cv2.destroyAllWindows()
   return
 
 def find_maximum(img):
@@ -118,7 +120,8 @@ def find_flow(flow, th=3, magnitude=None):
   print("n_pix " + str(n_pix))
 
   #import my
-  cv2.imshow("mask", mask)
+  if (DISPLAY):
+    cv2.imshow("mask", mask)
 
   flow_masked = apply_mask(flow, mask)
   x_flow_masked = flow_masked[:, :, 0]
@@ -232,14 +235,16 @@ def write_to_dataset_diff(filename_input, filename_output):
     draw_cross(diff, lxm, lym, lvm // 10)
     draw_cross(diff, w_half + rxm, rym, rvm // 10)
     
-    cv2.imshow('frame', diff)
+    if (DISPLAY):
+      cv2.imshow('frame', diff)
     if cv2.waitKey(1) & 0xFF == ord('q'):
       break
     f += 1
     input("Press Enter...")
 
   cap.release()
-  cv2.destroyAllWindows()
+  if (DISPLAY):
+    cv2.destroyAllWindows()
   return
 
 def write_to_dataset_dense(filename_input, filename_output):
@@ -361,7 +366,8 @@ def write_to_dataset_dense(filename_input, filename_output):
     draw_cross(flow2,          round(l_cx), round(l_cy), round(abs(l_vx) + abs(l_vy)) // 1)
     draw_cross(flow2, w_half + round(r_cx), round(r_cy), round(abs(r_vx) + abs(r_vy)) // 1)
 
-    cv2.imshow('frame', flow2)
+    if (DISPLAY):
+      cv2.imshow('frame', flow2)
     if cv2.waitKey(1) & 0xFF == ord('q'):
       break
     f += 1
@@ -369,7 +375,8 @@ def write_to_dataset_dense(filename_input, filename_output):
     #  input()
 
   cap.release()
-  cv2.destroyAllWindows()
+  if (DISPLAY):
+    cv2.destroyAllWindows()
   #return
 
   ## Generate subj?_flow.tsv
