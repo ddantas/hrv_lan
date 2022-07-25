@@ -62,8 +62,11 @@ if (length(folders) == 0)
               "../data/b041",
               "../data/b042",
               "../data/b043",
-              "../data/b044")
-  #folders = c("../data/b044")
+              "../data/b044",
+              "../data/b045",
+              "../data/b046",
+              "../data/b047",
+              "../data/b048")
 }
 
 ds_files = c("02_preprocess/dataset_dd.tsv", "02_preprocess/dataset_jf.tsv")

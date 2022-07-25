@@ -8,6 +8,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   source('plot_correlationts.R')
   source('report_pdc.R')
   source('plot_pdc.R')
+  source('print_table_html.R')
+  source('pval_color.R')
   #source('script.R')
   #source('plot_power.R')
 
@@ -145,6 +147,11 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$annotator == 'dd'",                             "dd"),
     c("df$annotator == 'jf'",                             "jf")  )
 
+  df_pvals = data.frame(folder = numeric(0),
+                        label = numeric(0),
+                        col = numeric(0),
+                        from = numeric(0),
+                        val = numeric(0))
 
   ic_min = nrow(conditions)
   ica = 1
@@ -187,9 +194,34 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       {
         res = plot_pdc(data1, data2, str_title, outputDir)
         report_pdc(res, str_title)
+
+        folder = strsplit(exp_label, '_')[[1]][1]
+        label = strsplit(exp_label, '_')[[1]][2]
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 1, res[[1]]$p.value)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 2, res[[2]]$p.value)
       }
     }
   }
+
+  df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "from"), direction="wide")
+  writeLines("...")
+  writeLines(paste("<h3>P-values</h3>", sep=""))
+  print_table_html(df_pvals_wide, pval_color)
+  for (i in seq(1, length(cols), by = 2))
+  {
+    col1 = names(df)[cols[i]]
+
+    writeLines("...")
+    writeLines(paste("<h3>P-values of column ", col1, " from 1 to 2</h3>", sep=""))
+    df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 1,]
+    print_table_html(df_tmp, pval_color)
+
+    writeLines("...")
+    writeLines(paste("<h3>P-values of column ", col1, " from 2 to 1</h3>", sep=""))
+    df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 2,]
+    print_table_html(df_tmp, pval_color)
+  }
+
 
   ##########
   print_separator()

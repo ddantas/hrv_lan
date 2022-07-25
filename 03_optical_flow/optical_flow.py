@@ -32,27 +32,25 @@ import const as k
 import utils
 
 
-def create_data_file(input_path,
-       filename_rr_linear1, filename_rr_linear2,
-       filename_rr_nearest1, filename_rr_nearest2,
-       filename_ecg_rr_linear1, filename_ecg_rr_linear2,
-       filename_ecg_rr_nearest1, filename_ecg_rr_nearest2,
-       filename_annot, filename_dataset):
+def create_data_file(
+    arr_l_cx, arr_l_cy, arr_l_vx, arr_l_vy, arr_l_npix,
+    arr_r_cx, arr_r_cy, arr_r_vx, arr_r_vy, arr_r_npix,
+    filename_output):
   
   dfs = []
-  for key in tiers_dict.keys():
-    content[key] = ["" if val is None else val.strip() for val in content[key]]
-
-  for h in k.DATASET_HEADERS:
-    print(h)
-    if (h == "msg1" or h == "msg2"):
-      for i in range(len(content[h])):
-        content[h][i] = content[h][i].replace('"', '')
-    dfs.append(pd.Series(content[h], name=h))
+  dfs.append(pd.Series(arr_l_cx, name="arr_l_cx", dtype=float))
+  dfs.append(pd.Series(arr_l_cy, name="arr_l_cy", dtype=float))
+  dfs.append(pd.Series(arr_l_vx, name="arr_l_vx", dtype=float))
+  dfs.append(pd.Series(arr_l_vy, name="arr_l_vy", dtype=float))
+  dfs.append(pd.Series(arr_l_npix, name="arr_l_npix", dtype=int))
+  dfs.append(pd.Series(arr_r_cx, name="arr_r_cx", dtype=float))
+  dfs.append(pd.Series(arr_r_cy, name="arr_r_cy", dtype=float))
+  dfs.append(pd.Series(arr_r_vx, name="arr_r_vx", dtype=float))
+  dfs.append(pd.Series(arr_r_vy, name="arr_r_vy", dtype=float))
+  dfs.append(pd.Series(arr_r_npix, name="arr_r_npix", dtype=int))
 
   df = pd.concat(dfs, axis=1)
-  
-  df.to_csv(filename_dataset, sep = '\t', index=False, mode = "w", header = True)
+  df.to_csv(filename_output, sep = '\t', index=False, mode = "w", header = True)
 
 def write_to_dataset0(filename_input, filename_output):
 
@@ -101,12 +99,12 @@ def find_centroid(img):
 def apply_mask(img, mask):
   # Grayscale
   if (len(img.shape) <= 2):
-    result = np.minimum(img, mask)
+    result = np.minimum(abs(img), mask)
   else:
     result = np.zeros(img.shape)
     n_ch = img.shape[2]
     for c in range(n_ch):
-      result[:, :, c] = np.minimum(img[:, :, c], mask)
+      result[:, :, c] = np.minimum(abs(img[:, :, c]), mask)
   return result
 
 def find_flow(flow, th=3, magnitude=None):
@@ -119,12 +117,14 @@ def find_flow(flow, th=3, magnitude=None):
   n_pix = sum(sum(mask)) // 255
   print("n_pix " + str(n_pix))
 
-  import my
-  my.imshow(mask)
+  #import my
+  cv2.imshow("mask", mask)
 
   flow_masked = apply_mask(flow, mask)
   x_flow_masked = flow_masked[:, :, 0]
   y_flow_masked = flow_masked[:, :, 1]
+  print("mask " + str(mask))
+  print("x_flow_masked " + str(x_flow_masked))
 
   #return flow_masked
 
@@ -135,26 +135,40 @@ def find_flow(flow, th=3, magnitude=None):
   x_sum_abs = sum(abs(x_flow_masked))
   x_sum = sum(x_flow_masked)
   x_coord = range(len(x_sum))
-  print("x_sum_abs " + str(x_sum_abs))
+  #print("x_sum_abs " + str(x_sum_abs))
+  print("sum(x_sum) " + str(sum(x_sum)))
   print("x_coord " + str(x_coord))
   print("x_tot " + str(x_tot))
   cx = np.dot(x_sum_abs, x_coord) / x_tot
-  vx = sum(x_sum) / n_pix
+  vx = 0.0
+  if (n_pix > 0):
+    vx = x_tot / n_pix
+  if np.isnan(cx):
+    cx = 0.0
+  print("cx " + str(cx))
+  print("vx " + str(vx))
 
   y_sum_abs = sum(abs(y_flow_masked.transpose()))
   y_sum = sum(y_flow_masked.transpose())
   y_coord = range(len(y_sum))
+  print("y_tot " + str(y_tot))
   cy = np.dot(y_sum_abs, y_coord) / y_tot
-  vy = sum(y_sum) / n_pix
+  vy = 0.0
+  if (n_pix > 0):
+    vy = y_tot / n_pix
+  if np.isnan(cy):
+    cy = 0.0
+  print("cy " + str(cy))
+  print("vy " + str(vy))
 
-  return cx, cy, vx, vy
+  return cx, cy, vx, vy, n_pix
 
 def clamp(c, inf, sup):
   c = max(inf, c)
   c = min(sup, c)
   return c
                         
-def split(img):
+def split_image(img):
   w = img.shape[1]
   img_left = img[:, 0:w // 2]
   img_right = img[:, w // 2:]
@@ -185,7 +199,7 @@ def write_to_dataset_diff(filename_input, filename_output):
   while(cap.isOpened()):
     ret, frame = cap.read()
     frame[0:24, :] = 0
-    frame_left, frame_right = split(frame)
+    frame_left, frame_right = split_image(frame)
     if (f % 2 == 0):
       gray0 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
       #gray0[0:24, :] = 0
@@ -206,7 +220,7 @@ def write_to_dataset_diff(filename_input, filename_output):
     #my.imwrite(filename, diff)
     # save end
     
-    l, r = split(diff_blur)
+    l, r = split_image(diff_blur)
     lx, ly = find_centroid(l)
     rx, ry = find_centroid(r)
     lxm, lym, lvm = find_maximum(l)
@@ -233,14 +247,27 @@ def write_to_dataset_dense(filename_input, filename_output):
   import numpy as np
   import cv2
   import my
-  
+
+  arr_l_cx = []
+  arr_l_cy = []
+  arr_l_vx = []
+  arr_l_vy = []
+  arr_l_npix = []
+  arr_r_cx = []
+  arr_r_cy = []
+  arr_r_vx = []
+  arr_r_vy = []
+  arr_r_npix = []
+
   cap = cv2.VideoCapture(filename_input)
   f = 0
   w_half = -1
   while(cap.isOpened()):
     ret, frame = cap.read()
+    if (frame is None):
+      break
     frame[0:24, :] = 0
-    frame_left, frame_right = split(frame)
+    frame_left, frame_right = split_image(frame)
     if (f == 0):
       print(f)
       gray0 = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -274,20 +301,31 @@ def write_to_dataset_dense(filename_input, filename_output):
     # Convert HSV to RGB (BGR) color representation
     rgb = cv2.cvtColor(mask, cv2.COLOR_HSV2BGR)
 
-    th = 0
+    th = 2
     #flow_masked = find_flow(flow, th, magnitude)
     #ret, mask2 = cv2.threshold(magnitude, th, 255, cv2.THRESH_BINARY)
 
     #magnitude[magnitude > 255] = 0
-    l_flow, r_flow = split(flow)
-    l_mag, r_mag = split(magnitude)
+    l_flow, r_flow = split_image(flow)
+    l_mag, r_mag = split_image(magnitude)
     print("l_flow.shape " + str(l_flow.shape))
     print("r_flow.shape " + str(r_flow.shape))
     print("l_mag.shape " + str(l_mag.shape))
     print("r_mag.shape " + str(r_mag.shape))
 
-    l_cx, l_cy, l_vx, l_vy = find_flow(l_flow, th, l_mag)
-    r_cx, r_cy, r_vx, r_vy = find_flow(r_flow, th, r_mag)
+    l_cx, l_cy, l_vx, l_vy, l_npix = find_flow(l_flow, th, l_mag)
+    r_cx, r_cy, r_vx, r_vy, r_npix = find_flow(r_flow, th, r_mag)
+    arr_l_cx.append(l_cx)
+    arr_l_cy.append(l_cy)
+    arr_l_vx.append(l_vx)
+    arr_l_vy.append(l_vy)
+    arr_l_npix.append(l_npix)
+    arr_r_cx.append(r_cx)
+    arr_r_cy.append(r_cy)
+    arr_r_vx.append(r_vx)
+    arr_r_vy.append(r_vy)
+    arr_r_npix.append(r_npix)
+
     #if (lvm > 255):
     #  lvm = 255
     #if (rvm > 255):
@@ -297,9 +335,7 @@ def write_to_dataset_dense(filename_input, filename_output):
     print("%d: L[%d, %d] + (%f, %f)  R[%d, %d] + (%f, %f)" % (f, l_cx, l_cy, l_vx, l_vy, r_cx, r_cy, r_vx, r_vy))
 
     #mask = mask.astype(np.uint8)
-    draw_cross(rgb,          round(l_cx), round(l_cy), round(l_vx + l_vy) // 1)
-    draw_cross(rgb, w_half + round(r_cx), round(r_cy), round(r_vx + r_vy) // 1)
-    
+
     # save start
     #filename = "f%05d.tiff" % f
     #my.imwrite(filename, diff)
@@ -315,30 +351,33 @@ def write_to_dataset_dense(filename_input, filename_output):
 
     flow2 = np.zeros(frame.shape, dtype=np.uint8)
     print(flow2.dtype)
+    print("f = " + str(f))
     flow2[:, :, 2] = 10*flow[:,:,0] + 128
     flow2[:, :, 1] = 10*flow[:,:,1] + 128
     #flow2[:, :, 0] = 128
     
+    #draw_cross(rgb,          round(l_cx), round(l_cy), round(l_vx + l_vy) // 1)
+    #draw_cross(rgb, w_half + round(r_cx), round(r_cy), round(r_vx + r_vy) // 1)
+    draw_cross(flow2,          round(l_cx), round(l_cy), round(abs(l_vx) + abs(l_vy)) // 1)
+    draw_cross(flow2, w_half + round(r_cx), round(r_cy), round(abs(r_vx) + abs(r_vy)) // 1)
+
     cv2.imshow('frame', flow2)
     if cv2.waitKey(1) & 0xFF == ord('q'):
       break
     f += 1
-    if (f > 0):
-      input()
+    #if (f > 0):
+    #  input()
 
   cap.release()
   cv2.destroyAllWindows()
-  return
+  #return
 
-
-  ## Generate dataset.tsv
+  ## Generate subj?_flow.tsv
   print("Generating complete dataset...")
-  create_data_file(input_path,
-       filename_rr_linear1, filename_rr_linear2,
-       filename_rr_nearest1, filename_rr_nearest2,
-       filename_ecg_rr_linear1, filename_ecg_rr_linear2,
-       filename_ecg_rr_nearest1, filename_ecg_rr_nearest2,
-       filename_annot, filename_dataset)
+  create_data_file(
+    arr_l_cx, arr_l_cy, arr_l_vx, arr_l_vy, arr_l_npix,
+    arr_r_cx, arr_r_cy, arr_r_vx, arr_r_vy, arr_r_npix,
+    filename_output)
   print("Done.")
 
 """#########################################################
@@ -357,20 +396,23 @@ def main(path_input, path_output):
       os.mkdir(path_opti)
 
     files = os.listdir(path_input)
+    files.sort()
+    print(files)
     for filename_video in files:
       
       filename_dataset = filename_video[0:k.LEN_PREF_VIDEO] + k.EXT_FLOW
       filename_input = os.path.join(path_input, filename_video)
-      filename_output = os.path.join(path_output, filename_dataset)
+      filename_output = os.path.join(path_opti, filename_dataset)
 
       print("path_input: " + path_input)
       print("path_output: " + path_output)
+      print("path_opti: " + path_opti)
       print("filename_video: " + filename_video)
       print("filename_dataset: " + filename_dataset)      
       print("filename_input: " + filename_input)
       print("filename_output: " + filename_output)
       write_to_dataset_dense(filename_input, filename_output)
-      input("Press Enter...")
+      #input("Press Enter...")
 
       
       if filename_video in files:

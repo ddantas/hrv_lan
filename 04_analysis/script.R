@@ -10,8 +10,9 @@ get_pdc <- function(df_pdc) {
     # A função utiliza PDC de forma errada enquanto não temos a posição da mão dos participantes
     # para realizar a covariância. Além disso, o retorno dela foi alterado para conter variáveis dummy.
 
-    ## Seleciona a ordem do VAR/PDC usando o pico da coorrelação cruzada
+    ## Seleciona a ordem do VAR/PDC usando o pico da coorrelação cruzada. Lag não pode ser zero.
     tmp <- ccf(data_pdc[,1], data_pdc[,2], plot=FALSE)
+    tmp$acf[which(tmp$lag == 0)] = 0.0
     p <- abs(tmp$lag[which(abs(tmp$acf) == max(abs(tmp$acf)))])
 
     # tmp <- PDC(data[,c(1,2,3)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
@@ -182,10 +183,10 @@ VAR <- function(x, p=1) {
 PDC <- function(x, p=1, srate=1, maxBoot=300, plot=FALSE) {
     # The value of p should never be zero. If so, search for the second highest correlation.
     # Ideally, use Akaike information criterion (AIC) or Bayesian information criretion (BIC).
-    if (p <= 0)
-    {
-      p = 1
-    }
+    #if (p <= 0)
+    #{
+    #  p = 1
+    #}
   
     T <- dim(x)[1]
     K <- dim(x)[2]
