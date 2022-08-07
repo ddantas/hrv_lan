@@ -122,7 +122,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$folder %in% c('b029', 'b030', 'b031', 'b032')", "ex08",            "Subject 1", "Subject 2"),
     c("df$folder %in% c('b033', 'b034', 'b035', 'b036')", "ex09",            "Subject 1", "Subject 2"),
     c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10",            "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11",            "Subject 1", "Subject 2")  )
+    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11",            "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b045', 'b046', 'b047', 'b048')", "ex12",            "Subject 1", "Subject 2")  )
 
   cond_folder = rbind(
     c("df$folder %in% c('b001', 'b002', 'b003', 'b004')", "ex01"),
@@ -134,8 +135,9 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$folder %in% c('b029', 'b030', 'b031', 'b032')", "ex08"),
     c("df$folder %in% c('b033', 'b034', 'b035', 'b036')", "ex09"),
     c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10"),
-    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11") )
-  cond_label = rbind(
+    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11"),
+    c("df$folder %in% c('b045', 'b046', 'b047', 'b048')", "ex12") )
+cond_label = rbind(
     c("df$label == 'SI'",                                 "si"),
     c("df$label == 'IImitator1'",                         "iimitator1"),
     c("df$label == 'IImitator2'",                         "iimitator2"),

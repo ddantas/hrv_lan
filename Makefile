@@ -12,8 +12,8 @@ runsub:
 # Synchronization of videos of both subjects.
 # Force both videos to have the same length.
 runsync:
-	python3 01_sync/sync.py data/b046
-	python3 01_sync/sync.py data/b048
+	python3 01_sync/sync.py data/b042
+	python3 01_sync/sync.py data/b044
 
 runprep:
 	#python3 02_preprocess/preprocess.py data/b*
