@@ -343,6 +343,8 @@ class Polar():
     result = []
     devices = await BleakScanner.discover(timeout=timeout)
     for d in devices:
+      if (d.name == None):
+        continue
       if (d.name.find(name) < 0):
         continue
       msg = "Found device <<%s>> at <<%s>>" % (d.name, d.address)
