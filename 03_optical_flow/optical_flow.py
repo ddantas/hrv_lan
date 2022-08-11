@@ -38,20 +38,20 @@ def create_data_file(
     arr_r_cx, arr_r_cy, arr_r_vx, arr_r_vy, arr_r_npix,
     filename_output):
   
-  dfs = []
-  dfs.append(pd.Series(arr_l_cx, name="arr_l_cx", dtype=float))
-  dfs.append(pd.Series(arr_l_cy, name="arr_l_cy", dtype=float))
-  dfs.append(pd.Series(arr_l_vx, name="arr_l_vx", dtype=float))
-  dfs.append(pd.Series(arr_l_vy, name="arr_l_vy", dtype=float))
-  dfs.append(pd.Series(arr_l_npix, name="arr_l_npix", dtype=int))
-  dfs.append(pd.Series(arr_r_cx, name="arr_r_cx", dtype=float))
-  dfs.append(pd.Series(arr_r_cy, name="arr_r_cy", dtype=float))
-  dfs.append(pd.Series(arr_r_vx, name="arr_r_vx", dtype=float))
-  dfs.append(pd.Series(arr_r_vy, name="arr_r_vy", dtype=float))
-  dfs.append(pd.Series(arr_r_npix, name="arr_r_npix", dtype=int))
+  arr = []
+  arr.append(pd.Series(arr_l_cx, name="arr_l_cx", dtype=float))
+  arr.append(pd.Series(arr_l_cy, name="arr_l_cy", dtype=float))
+  arr.append(pd.Series(arr_l_vx, name="arr_l_vx", dtype=float))
+  arr.append(pd.Series(arr_l_vy, name="arr_l_vy", dtype=float))
+  arr.append(pd.Series(arr_l_npix, name="arr_l_npix", dtype=int))
+  arr.append(pd.Series(arr_r_cx, name="arr_r_cx", dtype=float))
+  arr.append(pd.Series(arr_r_cy, name="arr_r_cy", dtype=float))
+  arr.append(pd.Series(arr_r_vx, name="arr_r_vx", dtype=float))
+  arr.append(pd.Series(arr_r_vy, name="arr_r_vy", dtype=float))
+  arr.append(pd.Series(arr_r_npix, name="arr_r_npix", dtype=int))
 
-  df = pd.concat(dfs, axis=1)
-  df.to_csv(filename_output, sep = '\t', index=False, mode = "w", header = True)
+  df_out = pd.concat(arr, axis=1)
+  df_out.to_csv(filename_output, sep = '\t', index=False, mode = "w", header = True)
 
 def write_to_dataset0(filename_input, filename_output):
 
@@ -192,8 +192,6 @@ def draw_cross(img, x, y, r=2):
 
 def write_to_dataset_diff(filename_input, filename_output):
 
-  import numpy as np
-  import cv2
   #import my
   
   cap = cv2.VideoCapture(filename_input)
@@ -249,8 +247,6 @@ def write_to_dataset_diff(filename_input, filename_output):
 
 def write_to_dataset_dense(filename_input, filename_output):
 
-  import numpy as np
-  import cv2
   #import my
 
   arr_l_cx = []
