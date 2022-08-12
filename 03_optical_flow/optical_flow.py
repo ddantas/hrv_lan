@@ -39,16 +39,16 @@ def create_data_file(
     filename_output):
   
   arr = []
-  arr.append(pd.Series(arr_l_cx, name="arr_l_cx", dtype=float))
-  arr.append(pd.Series(arr_l_cy, name="arr_l_cy", dtype=float))
-  arr.append(pd.Series(arr_l_vx, name="arr_l_vx", dtype=float))
-  arr.append(pd.Series(arr_l_vy, name="arr_l_vy", dtype=float))
-  arr.append(pd.Series(arr_l_npix, name="arr_l_npix", dtype=int))
-  arr.append(pd.Series(arr_r_cx, name="arr_r_cx", dtype=float))
-  arr.append(pd.Series(arr_r_cy, name="arr_r_cy", dtype=float))
-  arr.append(pd.Series(arr_r_vx, name="arr_r_vx", dtype=float))
-  arr.append(pd.Series(arr_r_vy, name="arr_r_vy", dtype=float))
-  arr.append(pd.Series(arr_r_npix, name="arr_r_npix", dtype=int))
+  arr.append(pd.Series(arr_l_cx, name="flow_l_cx", dtype=float))
+  arr.append(pd.Series(arr_l_cy, name="flow_l_cy", dtype=float))
+  arr.append(pd.Series(arr_l_vx, name="flow_l_vx", dtype=float))
+  arr.append(pd.Series(arr_l_vy, name="flow_l_vy", dtype=float))
+  arr.append(pd.Series(arr_l_npix, name="flow_l_npix", dtype=int))
+  arr.append(pd.Series(arr_r_cx, name="flow_r_cx", dtype=float))
+  arr.append(pd.Series(arr_r_cy, name="flow_r_cy", dtype=float))
+  arr.append(pd.Series(arr_r_vx, name="flow_r_vx", dtype=float))
+  arr.append(pd.Series(arr_r_vy, name="flow_r_vy", dtype=float))
+  arr.append(pd.Series(arr_r_npix, name="flow_r_npix", dtype=int))
 
   df_out = pd.concat(arr, axis=1)
   df_out.to_csv(filename_output, sep = '\t', index=False, mode = "w", header = True)

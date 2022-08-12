@@ -18,8 +18,8 @@ concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_fil
                "b021", "b022", "b023", "b024",
                "b025", "b026", "b027", "b028",
                "b033", "b034", "b035", "b036")
-  columns_flow = c("arr_l_cx", "arr_l_cy", "arr_l_vx", "arr_l_vy", "arr_l_npix", "arr_l_npix_filt",
-                   "arr_r_cx", "arr_r_cy", "arr_r_vx", "arr_r_vy", "arr_r_npix", "arr_r_npix_filt")
+  columns_flow = c("flow_l_cx", "flow_l_cy", "flow_l_vx", "flow_l_vy", "flow_l_npix", "flow_l_npix_filt",
+                   "flow_r_cx", "flow_r_cy", "flow_r_vx", "flow_r_vy", "flow_r_npix", "flow_r_npix_filt")
 
   print(columns)
 

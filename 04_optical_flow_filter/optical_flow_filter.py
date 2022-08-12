@@ -28,20 +28,20 @@ import const as k
 
 DISPLAY = False
 
-def df_concat(df, arr_l_npix_filt, arr_r_npix_filt):
+def df_concat(df, flow_l_npix_filt, flow_r_npix_filt):
   arr = []
-  arr.append(pd.Series(df["arr_l_cx"], dtype=float))
-  arr.append(pd.Series(df["arr_l_cy"], dtype=float))
-  arr.append(pd.Series(df["arr_l_vx"], dtype=float))
-  arr.append(pd.Series(df["arr_l_vy"], dtype=float))
-  arr.append(pd.Series(df["arr_l_npix"], dtype=float))
-  arr.append(pd.Series(arr_l_npix_filt, name="arr_l_npix_filt", dtype=int))
-  arr.append(pd.Series(df["arr_r_cx"], dtype=float))
-  arr.append(pd.Series(df["arr_r_cy"], dtype=float))
-  arr.append(pd.Series(df["arr_r_vx"], dtype=float))
-  arr.append(pd.Series(df["arr_r_vy"], dtype=float))
-  arr.append(pd.Series(df["arr_r_npix"], dtype=float))
-  arr.append(pd.Series(arr_r_npix_filt, name="arr_r_npix_filt", dtype=int))
+  arr.append(pd.Series(df["flow_l_cx"], dtype=float))
+  arr.append(pd.Series(df["flow_l_cy"], dtype=float))
+  arr.append(pd.Series(df["flow_l_vx"], dtype=float))
+  arr.append(pd.Series(df["flow_l_vy"], dtype=float))
+  arr.append(pd.Series(df["flow_l_npix"], dtype=float))
+  arr.append(pd.Series(flow_l_npix_filt, name="flow_l_npix_filt", dtype=int))
+  arr.append(pd.Series(df["flow_r_cx"], dtype=float))
+  arr.append(pd.Series(df["flow_r_cy"], dtype=float))
+  arr.append(pd.Series(df["flow_r_vx"], dtype=float))
+  arr.append(pd.Series(df["flow_r_vy"], dtype=float))
+  arr.append(pd.Series(df["flow_r_npix"], dtype=float))
+  arr.append(pd.Series(flow_r_npix_filt, name="flow_r_npix_filt", dtype=int))
   
   df_out = pd.concat(arr, axis=1)
   return df_out
@@ -112,47 +112,47 @@ def write_to_dataset_filter(filename_input, filename_output, filename_subsamp):
   conv_nsteps = 3
 
   col_npix = 4
-  arr_l_npix_bool = df.iloc[:, col_npix] > th
-  arr_l_npix_filt = erode_column(df, col_npix, th, w_filt)
+  flow_l_npix_bool = df.iloc[:, col_npix] > th
+  flow_l_npix_filt = erode_column(df, col_npix, th, w_filt)
   for col in range(0, 4):
-    filter_column(df, col, arr_l_npix_filt)
+    filter_column(df, col, flow_l_npix_filt)
     for i in range(conv_nsteps):
       df.iloc[:, col] = np.convolve(df.iloc[:, col], mask_blur, mode="same")
 
   col_npix = 9
-  arr_r_npix_bool = df.iloc[:, col_npix] > th
-  arr_r_npix_filt = erode_column(df, col_npix, th, w_filt)
+  flow_r_npix_bool = df.iloc[:, col_npix] > th
+  flow_r_npix_filt = erode_column(df, col_npix, th, w_filt)
   for col in range(5, 9):
-    filter_column(df, col, arr_r_npix_filt)
+    filter_column(df, col, flow_r_npix_filt)
     for i in range(conv_nsteps):
       df.iloc[:, col] = np.convolve(df.iloc[:, col], mask_blur, mode="same")
 
   if (DISPLAY):
-    plt.plot(df["arr_l_cx"])
-    plt.plot(df["arr_l_cy"])
-    plt.plot(arr_l_npix_filt * 100)
-    plt.plot(arr_l_npix_bool * 50)
+    plt.plot(df["flow_l_cx"])
+    plt.plot(df["flow_l_cy"])
+    plt.plot(flow_l_npix_filt * 100)
+    plt.plot(flow_l_npix_bool * 50)
 
-    plt.plot(-df["arr_r_cx"])
-    plt.plot(-df["arr_r_cy"])
-    plt.plot(arr_r_npix_filt * -100)
-    plt.plot(arr_r_npix_bool * -50)
+    plt.plot(-df["flow_r_cx"])
+    plt.plot(-df["flow_r_cy"])
+    plt.plot(flow_r_npix_filt * -100)
+    plt.plot(flow_r_npix_bool * -50)
     plt.show()
 
-  df_out = df_concat(df, arr_l_npix_filt, arr_r_npix_filt)
+  df_out = df_concat(df, flow_l_npix_filt, flow_r_npix_filt)
   create_data_file(df_out, filename_output)
   df_subsamp = pd.DataFrame(df_out, index=range(0, len(df), 30))
 
   if (DISPLAY):
-    plt.plot(df_subsamp["arr_l_cx"])
-    plt.plot(df_subsamp["arr_l_cy"])
-    plt.plot(arr_l_npix_filt * 100)
-    plt.plot(arr_l_npix_bool * 50)
+    plt.plot(df_subsamp["flow_l_cx"])
+    plt.plot(df_subsamp["flow_l_cy"])
+    plt.plot(flow_l_npix_filt * 100)
+    plt.plot(flow_l_npix_bool * 50)
 
-    plt.plot(-df_subsamp["arr_r_cx"])
-    plt.plot(-df_subsamp["arr_r_cy"])
-    plt.plot(arr_r_npix_filt * -100)
-    plt.plot(arr_r_npix_bool * -50)
+    plt.plot(-df_subsamp["flow_r_cx"])
+    plt.plot(-df_subsamp["flow_r_cy"])
+    plt.plot(flow_r_npix_filt * -100)
+    plt.plot(flow_r_npix_bool * -50)
     plt.show()
 
   create_data_file(df_subsamp, filename_subsamp)
