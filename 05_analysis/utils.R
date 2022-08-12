@@ -5,7 +5,7 @@ load_data <- function(filename){
   return(data)
 }
 
-concatenate_datasets <- function(folders, filename_output, ds_files) {
+concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_files = NULL) {
 
   columns = c("folder", "annotator", "block", "label", "time",
               "IsImit", "IsSync", "Imitator", "Model",
@@ -18,11 +18,21 @@ concatenate_datasets <- function(folders, filename_output, ds_files) {
                "b021", "b022", "b023", "b024",
                "b025", "b026", "b027", "b028",
                "b033", "b034", "b035", "b036")
+  columns_flow = c("arr_l_cx", "arr_l_cy", "arr_l_vx", "arr_l_vy", "arr_l_npix", "arr_l_npix_filt",
+                   "arr_r_cx", "arr_r_cy", "arr_r_vx", "arr_r_vy", "arr_r_npix", "arr_r_npix_filt")
 
   print(columns)
 
-  final_df = data.frame(matrix(nrow=0, ncol=length(columns)))
-  colnames(final_df) = columns
+  n_cols_deriv = 8
+  if (is.null(ds_flow_files))
+  {
+    final_df = data.frame(matrix(nrow=0, ncol=length(columns) + n_cols_deriv))
+  }
+  else
+  {
+    final_df = data.frame(matrix(nrow=0, ncol=length(columns) + n_cols_deriv + 2*length(columns_flow)))
+  }
+  #colnames(final_df) = columns
   for (default_ds_subpath in ds_files)
   {
     writeLines(paste("File: ", default_ds_subpath))
@@ -115,7 +125,42 @@ concatenate_datasets <- function(folders, filename_output, ds_files) {
       df$d_hr_subj1_ecg_nearest = derivate(df$hr_subj1_ecg_nearest)
       df$d_hr_subj2_ecg_nearest = derivate(df$hr_subj2_ecg_nearest)
 
-      #print(colnames(df))
+      # Fill columns with optical flow data
+      if (!is.null(ds_flow_files))
+      {
+        n_rows = nrow(df)
+        subj = 1
+        for (flow_file in ds_flow_files)
+        {
+          str_subj = paste("subj", subj, sep="")
+          if (!grep(str_subj, flow_file))
+          {
+            writeLines(paste("Fatal error in concatenate_datasets: expected", str_subj, "in filename", flow_file))
+            writeLines("")
+            stop
+          }
+          writeLines(paste("Flow file: ", flow_file))
+          columns_flow_subj = paste(str_subj, "_", columns_flow, sep="")
+          flow_path = file.path(f, flow_file)
+          if (file.exists(flow_path))
+          {
+            df_flow = load_data(flow_path)
+            df_flow = df_flow[1:n_rows,]
+          }
+          else
+          {
+            writeLines(paste("File", flow_path, "does not exist. Filling with zeroes."))
+            mat = matrix(0, nrow=n_rows, ncol=length(columns_flow_subj))
+            df_flow = as.data.frame(mat)
+          }
+          colnames(df_flow) = columns_flow_subj
+          df = cbind(df, df_flow)
+          subj = subj + 1
+        }
+      }
+      # End
+      # Fill columns with optical flow data
+
       final_df = rbind(final_df, df)
     }
   }

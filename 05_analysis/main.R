@@ -8,7 +8,8 @@ library(stringr)
 
 library(ggplot2)
 
-GENERATE = FALSE
+GENERATE = TRUE
+REPORT = FALSE
 
 source("utils.R")
 source("analysis.R")
@@ -70,13 +71,15 @@ if (length(folders) == 0)
 }
 
 ds_files = c("02_preprocess/dataset_dd.tsv", "02_preprocess/dataset_jf.tsv")
+ds_flow_files = c("04_optical_flow_filter/subj1_flow_subs.tsv", "04_optical_flow_filter/subj2_flow_subs.tsv")
+#ds_flow_files = NULL
 #ds_files = c("02_preprocess/dataset_dd.tsv")
 #ds_files = c("02_preprocess/dataset_jf.tsv")
 
 filename_dataset = "dataset.tsv"
 if (GENERATE)
 {
-  concatenate_datasets(folders, filename_dataset, ds_files)
+  concatenate_datasets(folders, filename_dataset, ds_files, ds_flow_files)
 }
 
 ###############################################################3
@@ -104,8 +107,10 @@ inputFile     = filename_dataset
 outputDir      = "saida"
 outputFile     = "report.html"
 
-report(inputFile, outputFile, outputDir, df, df_stack, df_role, confidence, prompt)
-
+if (REPORT)
+{
+  report(inputFile, outputFile, outputDir, df, df_stack, df_role, confidence, prompt)
+}
 
 ###############################################################3
 

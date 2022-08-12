@@ -141,7 +141,7 @@ def write_to_dataset_filter(filename_input, filename_output, filename_subsamp):
 
   df_out = df_concat(df, arr_l_npix_filt, arr_r_npix_filt)
   create_data_file(df_out, filename_output)
-  df_subsamp = pd.DataFrame(df, index=range(0, len(df), 30))
+  df_subsamp = pd.DataFrame(df_out, index=range(0, len(df), 30))
 
   if (DISPLAY):
     plt.plot(df_subsamp["arr_l_cx"])
