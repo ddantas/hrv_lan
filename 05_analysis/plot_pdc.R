@@ -1,4 +1,4 @@
-plot_pdc <- function(data1, data2, str_title, outputDir="") {
+plot_pdc <- function(data1, data2, hand_pos_data1, hand_pos_data2, str_title, outputDir="") {
 
   source("script.R")
 
@@ -18,7 +18,7 @@ plot_pdc <- function(data1, data2, str_title, outputDir="") {
     png(outputFullname, width=640);
   }
 
-  df_pdc = cbind(data1, data2)
+  df_pdc = cbind(data1, data2, hand_pos_data1, hand_pos_data1)
   res_pdc = get_pdc(df_pdc)
 
   if (outputDir != "")

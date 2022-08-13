@@ -5,8 +5,10 @@ get_pdc <- function(df_pdc) {
     
     data_pdc <- as.matrix(df_pdc)
 
-    data_pdc[, 1] <- rank(data_pdc[, 1])
-    data_pdc[, 2] <- rank(data_pdc[, 2])
+    for (c in ncol(data_pdc)) {
+        data_pdc[, c] <- rank(data_pdc[, c])
+    }
+
     # A função utiliza PDC de forma errada enquanto não temos a posição da mão dos participantes
     # para realizar a covariância. Além disso, o retorno dela foi alterado para conter variáveis dummy.
 
@@ -15,20 +17,21 @@ get_pdc <- function(df_pdc) {
     tmp$acf[which(tmp$lag == 0)] = 0.0
     p <- abs(tmp$lag[which(abs(tmp$acf) == max(abs(tmp$acf)))])
 
-    # tmp <- PDC(data[,c(1,2,3)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
-    tmp <- PDC(data_pdc[,c(1,2)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
+    hand_pos1 = c(3, 4)
+    hand_pos2 = c(5, 6)
+
+    tmp <- PDC(data_pdc[,c(1,2, hand_pos1)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
     res_12 <- list()
     res_12$pdc <- tmp$pdc[1,2]
     res_12$p.value <- tmp$p.value[1,2]
 
-    # tmp <- PDC(data[,c(1,2,4)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 2 para o 1
-    # res_21 <- list()
-    # res_21_p <- tmp$p.value[2,1]
-    # res_21_pdc <- tmp$pdc[2,1]
+    tmp <- PDC(data_pdc[,c(1,2, hand_pos2)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 2 para o 1
+    res_21 <- list()
+    res_21_p <- tmp$p.value[2,1]
+    res_21_pdc <- tmp$pdc[2,1]
 
 
-    # return(c(res_12, res_21))
-    return(list(res_12, res_12))
+    return(list(res_12, res_21))
 }
 
 get_correlationts <- function(df) {
@@ -92,24 +95,24 @@ get_correlationts <- function(df) {
 
 ## Calcula a correlação entre duas séries temporais e o p-valor via block bootstrap
 correlationts <- function(x, y, block=10, nboot=500) {
-	
-	orig <- abs(cor(x,y))
-	
-	distr <- array(0, nboot)
-	for(boot in 1:nboot) {
-		nblock <- length(x)/block
-		tmpx <- sample(seq(1:(length(x)-block)), size=nblock, replace=TRUE)
-		tmpy <- sample(seq(1:(length(x)-block)), size=nblock, replace=TRUE)
-		x.b <- 0
-		y.b <- 0
-		for(i in 1:nblock) {
-			x.b <- c(x.b, x[tmpx[i]:(tmpx[i]+block-1)])
-			y.b <- c(y.b, y[tmpy[i]:(tmpy[i]+block-1)])
-		}
-		distr[boot] <- abs(cor(x.b, y.b))
-	}
-	p <- length(which(distr > orig))/nboot
-	return (p)
+    
+    orig <- abs(cor(x,y))
+    
+    distr <- array(0, nboot)
+    for(boot in 1:nboot) {
+        nblock <- length(x)/block
+        tmpx <- sample(seq(1:(length(x)-block)), size=nblock, replace=TRUE)
+        tmpy <- sample(seq(1:(length(x)-block)), size=nblock, replace=TRUE)
+        x.b <- 0
+        y.b <- 0
+        for(i in 1:nblock) {
+            x.b <- c(x.b, x[tmpx[i]:(tmpx[i]+block-1)])
+            y.b <- c(y.b, y[tmpy[i]:(tmpy[i]+block-1)])
+        }
+        distr[boot] <- abs(cor(x.b, y.b))
+    }
+    p <- length(which(distr > orig))/nboot
+    return (p)
 }
 
 
@@ -117,7 +120,6 @@ VAR <- function(x, p=1) {
 
     T <- dim(x)[1]
     K <- dim(x)[2]
-
 
     for (k in 1:K) {
         x[,k] <- (x[,k] - mean(x[,k])) # / sd(x[,k])
@@ -224,12 +226,12 @@ PDC <- function(x, p=1, srate=1, maxBoot=300, plot=FALSE) {
 
     pdc.orig <- GPDC(x, res, plot=plot)
 
-	sum.pdc <- matrix(0, K, K)
-	for (i in 1:K) {
-		for (j in 1:K) {
-			sum.pdc[i,j] <- sum(pdc.orig[i,j,])
-		}
-	}
+    sum.pdc <- matrix(0, K, K)
+    for (i in 1:K) {
+        for (j in 1:K) {
+            sum.pdc[i,j] <- sum(pdc.orig[i,j,])
+        }
+    }
 
     pvalue <- matrix(0, K, K)
 
@@ -309,7 +311,7 @@ GPDC <- function(x, model, srate= 1, plot=FALSE) {
         for(i in 1:K){
             for(j in 1:K){
 #                if (j == 2 && i==1) {
-#                	pdf(file="/Volumes/GoogleDrive/My Drive/Projeto-rank/figuras/xxx12-norank.pdf", width=4, height=4)
+#                   pdf(file="/Volumes/GoogleDrive/My Drive/Projeto-rank/figuras/xxx12-norank.pdf", width=4, height=4)
 #                        plot(x=xaxis, y=Apdc[j,i,], xlim=c(0, 0.3), ylim=c(0,1), xlab="", ylab="", type="l", lwd=5)
 #                    dev.off()
 #                }

@@ -412,16 +412,16 @@ cond_label = rbind(
   cols = c(seq(10, 17), seq(21, 28))
   conditions = rbind(
     c("df$folder != ''",                                  "all",  "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b001', 'b002', 'b003', 'b004')", "ex01", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b009', 'b010', 'b011', 'b012')", "ex03", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b013', 'b014', 'b015', 'b016')", "ex04", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b017', 'b018', 'b019', 'b020')", "ex05", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b021', 'b022', 'b023', 'b024')", "ex06", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b025', 'b026', 'b027', 'b028')", "ex07", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b029', 'b030', 'b031', 'b032')", "ex08", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b033', 'b034', 'b035', 'b036')", "ex09", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11", "Subject 1", "Subject 2") )
+    c("df$folder %in% c('b002', 'b004')", "ex01", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b010', 'b012')", "ex03", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b014', 'b016')", "ex04", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b018', 'b020')", "ex05", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b022', 'b024')", "ex06", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b026', 'b028')", "ex07", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b030', 'b032')", "ex08", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b034', 'b036')", "ex09", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b038', 'b040')", "ex10", "Subject 1", "Subject 2"),
+    c("df$folder %in% c('b042', 'b044')", "ex11", "Subject 1", "Subject 2") )
   
   # for (ic in seq(1, dim(conditions)[1]))
   for (ic in seq(1))
@@ -430,6 +430,9 @@ cond_label = rbind(
     exp_label = conditions[ic, 2]
     str1 = conditions[ic, 3]
     str2 = conditions[ic, 4]
+
+    hand_pos_data1 = df[rows, c("subj1_flow_l_cx", "subj1_flow_l_cy"), drop=FALSE]
+    hand_pos_data2 = df[rows, c("subj2_flow_l_cx", "subj2_flow_l_cy"), drop=FALSE]
     
     for (i in seq(1, length(cols), by = 2))
     {
@@ -437,6 +440,7 @@ cond_label = rbind(
       col2 = names(df)[cols[i + 1]]
       data1 = df[rows, col1, drop=FALSE]
       data2 = df[rows, col2, drop=FALSE]
+
       str_title = paste("exp_", exp_label, "__", col1, "_vs_", col2, sep="")
       writeLines("...")
       writeLines(paste("<h3>", str_title, "</h3>", sep=""))
@@ -444,12 +448,11 @@ cond_label = rbind(
       ## PDC
       if (FELIPE)
       {
-        res = plot_pdc(data1, data2, str_title, outputDir)
+        res = plot_pdc(data1, data2, hand_pos_data1, hand_pos_data2, str_title, outputDir)
         report_pdc(res, str_title)
       }
     }
   }
-
   ##########
 
   ###plot_tc_dispersion(test, control, cols_dispersion, prompt, outputDir)
