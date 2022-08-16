@@ -1,6 +1,26 @@
 ################################################################################
 ## Com rank
 
+get_pdc_new <- function(df_pdc) {
+
+    data_pdc <- as.matrix(df_pdc)
+
+    for (c in ncol(data_pdc)) {
+        data_pdc[, c] <- rank(data_pdc[, c])
+    }
+
+    # A função utiliza PDC de forma errada enquanto não temos a posição da mão dos participantes
+    # para realizar a covariância. Além disso, o retorno dela foi alterado para conter variáveis dummy.
+
+    ## Seleciona a ordem do VAR/PDC usando o pico da coorrelação cruzada. Lag não pode ser zero.
+    tmp <- ccf(data_pdc[,1], data_pdc[,2], plot=FALSE)
+    tmp$acf[which(tmp$lag == 0)] = 0.0
+    p <- abs(tmp$lag[which(abs(tmp$acf) == max(abs(tmp$acf)))])
+
+    res <- PDC(data_pdc, p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 1 para o 2
+    return(res)
+}
+
 get_pdc <- function(df_pdc) {
     
     data_pdc <- as.matrix(df_pdc)
@@ -27,8 +47,8 @@ get_pdc <- function(df_pdc) {
 
     tmp <- PDC(data_pdc[,c(1,2, hand_pos2)], p=p, srate=1, maxBoot=1000, plot=TRUE) ## se < 0.05, Granger do player 2 para o 1
     res_21 <- list()
-    res_21_p <- tmp$p.value[2,1]
-    res_21_pdc <- tmp$pdc[2,1]
+    res_21$pdc <- tmp$pdc[2,1]
+    res_21$p.value <- tmp$p.value[2,1]
 
 
     return(list(res_12, res_21))

@@ -1,4 +1,4 @@
-plot_pdc <- function(data1, data2, hand_pos_data1, hand_pos_data2, str_title, outputDir="") {
+plot_pdc_df <- function(df_pdc, str_title, outputDir="") {
 
   source("script.R")
 
@@ -18,8 +18,8 @@ plot_pdc <- function(data1, data2, hand_pos_data1, hand_pos_data2, str_title, ou
     png(outputFullname, width=640);
   }
 
-  df_pdc = cbind(data1, data2, hand_pos_data1, hand_pos_data2)
-  res_pdc = get_pdc(df_pdc)
+  #df_pdc = cbind(data1, data2, hand_pos_data1, hand_pos_data1)
+  res_pdc = get_pdc_new(df_pdc)
 
   if (outputDir != "")
   {
@@ -33,9 +33,9 @@ plot_pdc <- function(data1, data2, hand_pos_data1, hand_pos_data2, str_title, ou
   {
     writeLines(paste("</tr></table>", sep=""))
   }
-
-  writeLines("")
-  writeLines(paste("size = (", nrow(data1), ", ", nrow(data2), ", ", nrow(hand_pos_data1), ", ", nrow(hand_pos_data2), ")", sep=""))
-
+  
+  #writeLines("")
+  #writeLines(paste("size = (", nrow(data1), ", ", nrow(data2), ", ", nrow(hand_pos_data1), ", ", nrow(hand_pos_data2), ")", sep=""))
+        
   return(res_pdc)
 }

@@ -7,13 +7,15 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   source('report_tc_test.R')
   source('plot_correlationts.R')
   source('report_pdc.R')
+  source('report_pdc_new.R')
+  source('plot_pdc_df.R')
   source('plot_pdc.R')
   source('print_table_html.R')
   source('pval_color.R')
   #source('script.R')
   #source('plot_power.R')
 
-  DANTAS = TRUE
+  DANTAS = FALSE
   DANTAS_PDC = TRUE
   FELIPE = FALSE
   
@@ -152,7 +154,7 @@ cond_label = rbind(
   df_pvals = data.frame(folder = numeric(0),
                         label = numeric(0),
                         col = numeric(0),
-                        from = numeric(0),
+                        to_col = numeric(0),
                         val = numeric(0))
 
   ic_min = nrow(conditions)
@@ -194,34 +196,55 @@ cond_label = rbind(
       }
       if (DANTAS_PDC & ic > ic_min)
       {
-        res = plot_pdc(data1, data2, str_title, outputDir)
-        report_pdc(res, str_title)
+        subj = c(1, 2)
+        hand_pos_data1 = df[rows, "subj1_flow_l_cx", drop=FALSE]
+        df_pdc = cbind(data1, data2, hand_pos_data1)
+        str_title_1 = paste(str_title, "_1", sep="")
+        res = plot_pdc_df(df_pdc, str_title_1, outputDir)
+        report_pdc_new(res, c(1, 2), subj, str_title_1)
+        report_pdc_new(res, c(1, 3), subj, str_title_1)
 
         folder = strsplit(exp_label, '_')[[1]][1]
         label = strsplit(exp_label, '_')[[1]][2]
-        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 1, res[[1]]$p.value)
-        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 2, res[[2]]$p.value)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 2, res$p.value[1, 2])
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 3, res$p.value[1, 3])
+
+        subj = c(2, 1)
+        hand_pos_data2 = df[rows, "subj2_flow_l_cx", drop=FALSE]
+        df_pdc = cbind(data2, data1, hand_pos_data2)
+        str_title_2 = paste(str_title, "_2", sep="")
+        res = plot_pdc_df(df_pdc, str_title_2, outputDir)
+        report_pdc_new(res, c(1, 2), subj, str_title_2)
+        report_pdc_new(res, c(1, 3), subj, str_title_2)
+
+        folder = strsplit(exp_label, '_')[[1]][1]
+        label = strsplit(exp_label, '_')[[1]][2]
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, 2, res$p.value[1, 2])
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, 3, res$p.value[1, 3])
       }
     }
   }
 
-  df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "from"), direction="wide")
-  writeLines("...")
-  writeLines(paste("<h3>P-values</h3>", sep=""))
-  print_table_html(df_pvals_wide, pval_color)
-  for (i in seq(1, length(cols), by = 2))
+  if (DANTAS_PDC & ic > ic_min)
   {
-    col1 = names(df)[cols[i]]
-
+    df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "from"), direction="wide")
     writeLines("...")
-    writeLines(paste("<h3>P-values of column ", col1, " from 1 to 2</h3>", sep=""))
-    df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 1,]
-    print_table_html(df_tmp, pval_color)
+    writeLines(paste("<h3>P-values</h3>", sep=""))
+    print_table_html(df_pvals_wide, pval_color)
+    for (i in seq(1, length(cols), by = 2))
+    {
+      col1 = names(df)[cols[i]]
 
-    writeLines("...")
-    writeLines(paste("<h3>P-values of column ", col1, " from 2 to 1</h3>", sep=""))
-    df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 2,]
-    print_table_html(df_tmp, pval_color)
+      writeLines("...")
+      writeLines(paste("<h3>P-values of column ", col1, " from 1 to 2</h3>", sep=""))
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 1,]
+      print_table_html(df_tmp, pval_color)
+
+      writeLines("...")
+      writeLines(paste("<h3>P-values of column ", col1, " from 2 to 1</h3>", sep=""))
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 2,]
+      print_table_html(df_tmp, pval_color)
+    }
   }
 
 
@@ -411,20 +434,20 @@ cond_label = rbind(
 
   cols = c(seq(10, 17), seq(21, 28))
   conditions = rbind(
-    c("df$folder != ''",                                  "all",  "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b002', 'b004')", "ex01", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b010', 'b012')", "ex03", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b014', 'b016')", "ex04", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b018', 'b020')", "ex05", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b022', 'b024')", "ex06", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b026', 'b028')", "ex07", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b030', 'b032')", "ex08", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b034', 'b036')", "ex09", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b038', 'b040')", "ex10", "Subject 1", "Subject 2"),
-    c("df$folder %in% c('b042', 'b044')", "ex11", "Subject 1", "Subject 2") )
+    c("df$annotator == 'dd' & df$folder != ''",                  "all",  "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b002', 'b004')", "ex01", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b010', 'b012')", "ex03", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b014', 'b016')", "ex04", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b018', 'b020')", "ex05", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b022', 'b024')", "ex06", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b026', 'b028')", "ex07", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b030', 'b032')", "ex08", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b034', 'b036')", "ex09", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b038', 'b040')", "ex10", "Subject 1", "Subject 2"),
+    c("df$annotator == 'dd' & df$folder %in% c('b042', 'b044')", "ex11", "Subject 1", "Subject 2") )
   
-  # for (ic in seq(1, dim(conditions)[1]))
-  for (ic in seq(1))
+  for (ic in seq(2, dim(conditions)[1]))
+  #for (ic in seq(1))
   {
     rows = eval(parse(text=conditions[ic, 1]))
     exp_label = conditions[ic, 2]
