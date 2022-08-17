@@ -139,7 +139,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$folder %in% c('b037', 'b038', 'b039', 'b040')", "ex10"),
     c("df$folder %in% c('b041', 'b042', 'b043', 'b044')", "ex11"),
     c("df$folder %in% c('b045', 'b046', 'b047', 'b048')", "ex12") )
-cond_label = rbind(
+  cond_label = rbind(
     c("df$label == 'SI'",                                 "si"),
     c("df$label == 'IImitator1'",                         "iimitator1"),
     c("df$label == 'IImitator2'",                         "iimitator2"),
@@ -159,8 +159,10 @@ cond_label = rbind(
 
   ic_min = nrow(conditions)
   ica = 1
+  #for (icf in seq(1))
   for (icf in seq(1, nrow(cond_folder)))
   {
+    #for (icl in seq(6, nrow(cond_label)))
     for (icl in seq(1, nrow(cond_label)))
     {
       cond_new = c(paste(cond_folder[icf, 1], ' & ', cond_label[icl, 1], ' & ',  cond_annot[ica, 1], sep=''),
@@ -227,7 +229,7 @@ cond_label = rbind(
 
   if (DANTAS_PDC & ic > ic_min)
   {
-    df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "from"), direction="wide")
+    df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "to_col"), direction="wide")
     writeLines("...")
     writeLines(paste("<h3>P-values</h3>", sep=""))
     print_table_html(df_pvals_wide, pval_color)
@@ -237,12 +239,12 @@ cond_label = rbind(
 
       writeLines("...")
       writeLines(paste("<h3>P-values of column ", col1, " from 1 to 2</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 1,]
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == 2,]
       print_table_html(df_tmp, pval_color)
 
       writeLines("...")
       writeLines(paste("<h3>P-values of column ", col1, " from 2 to 1</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$from == 2,]
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == 3,]
       print_table_html(df_tmp, pval_color)
     }
   }
