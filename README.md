@@ -1,6 +1,14 @@
 # hrv_lan
 Heart rate variability graphical user interface for dataset capture on a LAN.
 
+## Environment setup
+
+The project requires Python 3.8. We recommend the creation of a virtual environment to facilitate the usage of the code.
+
+Use the code below in the terminal to install Python 3.8 in the system.
+
+> <code>$ git config credential.helper store</code>
+
 
 ## Tips about git usage
 
