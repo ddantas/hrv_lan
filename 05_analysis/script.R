@@ -212,7 +212,7 @@ PDC <- function(x, p=1, srate=1, maxBoot=300, plot=FALSE) {
   
     T <- dim(x)[1]
     K <- dim(x)[2]
-    pvalue <- matrix(0, K, K)
+    pvalue <- matrix(-1, K, K)
 
 #    for (k in 1:K) {
 #        x[,k] <- x[,k] - mean(x[,k])
@@ -234,6 +234,7 @@ PDC <- function(x, p=1, srate=1, maxBoot=300, plot=FALSE) {
       res = list()
       res$p.value = pvalue
       res$pdc = pvalue
+      res$lag = p
       return(res)
     }
   
@@ -311,6 +312,7 @@ PDC <- function(x, p=1, srate=1, maxBoot=300, plot=FALSE) {
     res <- list()
     res$p.value <- pvalue
     res$pdc <- sum.pdc
+    res$lag = p
     return(res)
 }
 

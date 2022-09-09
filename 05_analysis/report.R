@@ -157,7 +157,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
                         to_col = numeric(0),
                         val = numeric(0))
 
-  ic_min = nrow(conditions)
+  ic_min = nrow(conditions) + 1
   ica = 1
   #for (icf in seq(1))
   for (icf in seq(1, nrow(cond_folder)))
@@ -173,7 +173,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   }
   rownames(conditions) = NULL
 
-  #for (ic in seq(1))
+  #for (ic in seq(ic_min))
   for (ic in seq(1, dim(conditions)[1]))
   {
     rows = eval(parse(text=conditions[ic, 1]))
@@ -181,7 +181,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     str1 = conditions[ic, 3]
     str2 = conditions[ic, 4]
     
-    for (i in seq(1, length(cols), by = 2))
+    #for (i in seq(1, length(cols), by = 2))
+    for (i in seq(1))
     {
       col1 = names(df)[cols[i]]
       col2 = names(df)[cols[i + 1]]
@@ -196,40 +197,59 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
         plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
       }
-      if (DANTAS_PDC & ic > ic_min)
+      if (DANTAS_PDC & ic >= ic_min)
       {
         subj = c(1, 2)
         hand_pos_data1 = df[rows, "subj1_flow_l_cx", drop=FALSE]
-        df_pdc = cbind(data1, data2, hand_pos_data1)
+        if (!grepl("lude", str_title)) # Not prelude or interlude
+        {
+          df_pdc = cbind(data1, data2, hand_pos_data1)
+        } else {
+          df_pdc = cbind(data1, data2)
+        }
         str_title_1 = paste(str_title, "_1", sep="")
         res = plot_pdc_df(df_pdc, str_title_1, outputDir)
-        report_pdc_new(res, c(1, 2), subj, str_title_1)
-        report_pdc_new(res, c(1, 3), subj, str_title_1)
-
         folder = strsplit(exp_label, '_')[[1]][1]
         label = strsplit(exp_label, '_')[[1]][2]
+
+        report_pdc_new(res, c(1, 2), subj, str_title_1)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 2, res$p.value[1, 2])
-        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 3, res$p.value[1, 3])
+        if (!grepl("lude", str_title)) # Not prelude or interlude
+        {
+          report_pdc_new(res, c(1, 3), subj, str_title_1)
+          df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, 3, res$p.value[1, 3])
+        }
 
         subj = c(2, 1)
         hand_pos_data2 = df[rows, "subj2_flow_l_cx", drop=FALSE]
-        df_pdc = cbind(data2, data1, hand_pos_data2)
+        if (!grepl("lude", str_title)) # Not prelude or interlude
+        {
+          df_pdc = cbind(data2, data1, hand_pos_data2)
+        } else {
+          df_pdc = cbind(data2, data1)
+        }
         str_title_2 = paste(str_title, "_2", sep="")
         res = plot_pdc_df(df_pdc, str_title_2, outputDir)
-        report_pdc_new(res, c(1, 2), subj, str_title_2)
-        report_pdc_new(res, c(1, 3), subj, str_title_2)
-
         folder = strsplit(exp_label, '_')[[1]][1]
         label = strsplit(exp_label, '_')[[1]][2]
+        
+        report_pdc_new(res, c(1, 2), subj, str_title_2)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, 2, res$p.value[1, 2])
-        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, 3, res$p.value[1, 3])
+        if (!grepl("lude", str_title)) # Not prelude or interlude
+        {
+          report_pdc_new(res, c(1, 3), subj, str_title_2)
+          df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, 3, res$p.value[1, 3])
+        }
       }
     }
   }
 
-  if (DANTAS_PDC & ic > ic_min)
+  #print(df_pvals)
+  
+  if (DANTAS_PDC & ic >= ic_min)
   {
     df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "to_col"), direction="wide")
+    #print(df_pvals_wide)
     writeLines("...")
     writeLines(paste("<h3>P-values</h3>", sep=""))
     print_table_html(df_pvals_wide, pval_color)
@@ -238,13 +258,19 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       col1 = names(df)[cols[i]]
 
       writeLines("...")
-      writeLines(paste("<h3>P-values of column ", col1, " from 1 to 2</h3>", sep=""))
+      writeLines(paste("<h3>P-values of column ", col1, " from HR to HR</h3>", sep=""))
       df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == 2,]
+      #cat("********** i = ", i, "\n")
+      #cat("********** df_tmp 2\n")
+      #print(df_tmp)
       print_table_html(df_tmp, pval_color)
 
       writeLines("...")
-      writeLines(paste("<h3>P-values of column ", col1, " from 2 to 1</h3>", sep=""))
+      writeLines(paste("<h3>P-values of column ", col1, " from HR to hand movement</h3>", sep=""))
       df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == 3,]
+      #cat("********** i = ", i, "\n")
+      #cat("********** df_tmp 3\n")
+      #print(df_tmp)
       print_table_html(df_tmp, pval_color)
     }
   }

@@ -2,7 +2,7 @@ pval_color <- function(pval, confidence=0.95)
 {
   significance = 1 - confidence
 
-  if (is.na(pval))
+  if (is.na(pval) | pval < 0.0 | pval > 1.0)
   {
     result = "gray"
     return(result)
@@ -31,7 +31,7 @@ pval_color <- function(pval, confidence=0.95)
     zr_g = 200
     zr_b = 200
   }
-  
+
   if (pval <= significance)
   {
     pval_min = 1E-3
@@ -47,7 +47,7 @@ pval_color <- function(pval, confidence=0.95)
     g = lo_g
     b = lo_b
   }
-  result = paste("rgb(", 
+  result = paste("rgb(",
                  as.integer( (pval_abs * r) + ((1-pval_abs) * zr_r) ), ",",
                  as.integer( (pval_abs * g) + ((1-pval_abs) * zr_g) ), ",",
                  as.integer( (pval_abs * b) + ((1-pval_abs) * zr_b) ), ")",
