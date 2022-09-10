@@ -180,6 +180,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     exp_label = conditions[ic, 2]
     str1 = conditions[ic, 3]
     str2 = conditions[ic, 4]
+    col_hand1 = "subj1_flow_l_cx"
+    col_hand2 = "subj2_flow_l_cx"
     
     #for (i in seq(1, length(cols), by = 2))
     for (i in seq(1))
@@ -200,7 +202,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       if (DANTAS_PDC & ic >= ic_min)
       {
         subj = c(1, 2)
-        hand_pos_data1 = df[rows, "subj1_flow_l_cx", drop=FALSE]
+        hand_pos_data1 = df[rows, col_hand1, drop=FALSE]
         if (!grepl("lude", str_title)) # Not prelude or interlude
         {
           df_pdc = cbind(data1, data2, hand_pos_data1)
@@ -221,7 +223,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         }
 
         subj = c(2, 1)
-        hand_pos_data2 = df[rows, "subj2_flow_l_cx", drop=FALSE]
+        hand_pos_data2 = df[rows, col_hand2, drop=FALSE]
         if (!grepl("lude", str_title)) # Not prelude or interlude
         {
           df_pdc = cbind(data2, data1, hand_pos_data2)
@@ -256,21 +258,26 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     for (i in seq(1, length(cols), by = 2))
     {
       col1 = names(df)[cols[i]]
+      col2 = names(df)[cols[i+1]]
 
       writeLines("...")
-      writeLines(paste("<h3>P-values of column ", col1, " from HR to HR</h3>", sep=""))
+      writeLines(paste("<h3>P-values of Granger causality from ", col1, " to ", col2, "</h3>", sep=""))
       df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == 2,]
-      #cat("********** i = ", i, "\n")
-      #cat("********** df_tmp 2\n")
-      #print(df_tmp)
       print_table_html(df_tmp, pval_color)
 
       writeLines("...")
-      writeLines(paste("<h3>P-values of column ", col1, " from HR to hand movement</h3>", sep=""))
+      writeLines(paste("<h3>P-values of Granger causality from ", col1, " to ", col_hand1, "</h3>", sep=""))
       df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == 3,]
-      #cat("********** i = ", i, "\n")
-      #cat("********** df_tmp 3\n")
-      #print(df_tmp)
+      print_table_html(df_tmp, pval_color)
+
+      writeLines("...")
+      writeLines(paste("<h3>P-values of Granger causality from ", col2, " to ", col1, "</h3>", sep=""))
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col2 & df_pvals_wide$to_col == 2,]
+      print_table_html(df_tmp, pval_color)
+
+      writeLines("...")
+      writeLines(paste("<h3>P-values of Granger causality from ", col2, " to ", col_hand2, "</h3>", sep=""))
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col2 & df_pvals_wide$to_col == 3,]
       print_table_html(df_tmp, pval_color)
     }
   }
