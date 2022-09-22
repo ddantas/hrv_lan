@@ -8,8 +8,8 @@ library(stringr)
 
 library(ggplot2)
 
-GENERATE = FALSE
-REPORT = TRUE
+GENERATE = TRUE
+REPORT = FALSE
 
 source("utils.R")
 source("analysis.R")
