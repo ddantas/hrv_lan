@@ -42,11 +42,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   print_separator()
   writeLines(paste("<h2>Descriptive statistics in original dataset</h2>", sep=""))
 
-  cols = c(seq(10, 17), seq(21, 28))
-  #cols_disparsion = c(32, 36, 43, seq(44, 46), seq(57, 68))
-  #cols_dispersion = c(37, 43, 46, 68)
-  #min_num_col = 4
-  #max_num_col = 68
+  cols = c(seq(10, 25), seq(29, 44))
 
   ##########
   writeLines("...")
@@ -56,52 +52,6 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   print(generate_summary(df[cols]))
   writeLines("")
 
-  ##########
-  #writeLines("...")
-  #writeLines("Descriptive statistics from each column: Test - anisometropia")
-  #writeLines("")
-
-  #print(generate_summary(test[cols]))
-  #writeLines("")
-
-  ##########
-  #writeLines("...")
-  #writeLines("Descriptive statistics from each column: Control")
-  #writeLines("")
-
-  #print(generate_summary(control[cols]))
-  #writeLines("")
-
-  ##########
-  #print_separator()
-  #writeLines(paste("<h2>Sample size calculation</h2>", sep=""))
-
-  #arr_diff = c(0.15, 0.30)
-  #col_name = "estereop.log"
-  #sd1 = sd(test   [, col_name])
-  #sd2 = sd(control[, col_name])
-  #arr_pow = c(0.8, 0.85, 0.9, 0.95)
-  #sig = 0.05
-  #type = "two.sample"
-  #arr_alternative = c("two.sided", "greater")
-
-  #writeLines(paste("Column considered: ", col_name, sep=""))
-  #writeLines(paste("SD(Test)    = ", sd1, sep=""))
-  #writeLines(paste("SD(Control) = ", sd2, sep=""))
-  #writeLines("")
-  
-  #for (diff in arr_diff)
-  #{
-  #  for (alternative in arr_alternative)
-  #  {
-  #    str_title = paste("power_", diff, "_", type, "_", alternative, sep="")
-  #    writeLines("...")
-  #    writeLines(paste("Sample size calculation: diff = ", diff, sep=""))
-  #    writeLines("")
-  #    plot_power(outputFile, outputDir, str_title, diff, sd1, sd2, arr_pow, sig, type, alternative)
-  #  }
-  #}
-  
   ##########
   print_separator()
   writeLines(paste("<h2>Distributions of Test and Control groups in original dataset</h2>", sep=""))
@@ -183,8 +133,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     col_hand1 = "subj1_flow_l_cx"
     col_hand2 = "subj2_flow_l_cx"
     
-    #for (i in seq(1, length(cols), by = 2))
-    for (i in seq(1))
+    #for (i in 17)
+    for (i in seq(1, length(cols), by = 2))
     {
       col1 = names(df)[cols[i]]
       col2 = names(df)[cols[i + 1]]
@@ -287,13 +237,12 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   print_separator()
   writeLines(paste("<h2>Descriptive statistics in stacked dataset</h2>", sep=""))
 
-  cols_stack = c(seq(10, 13), seq(16, 19))
-
   ##########
   writeLines("...")
   writeLines("Descriptive statistics from each column in stacked dataset")
   writeLines("")
 
+  cols_stack = c(seq(10, 13), seq(16, 19))
   print(generate_summary(df_stack[cols_stack]))
   writeLines("")
 
@@ -365,7 +314,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   writeLines("Descriptive statistics from each column in role dataset")
   writeLines("")
 
-  print(generate_summary(df_role[cols]))
+  cols_role = c(seq(10, 17), seq(21, 28))
+  print(generate_summary(df_role[cols_role]))
   writeLines("")
 
   ##########
