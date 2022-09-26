@@ -42,7 +42,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   print_separator()
   writeLines(paste("<h2>Descriptive statistics in original dataset</h2>", sep=""))
 
-  cols = c(seq(10, 25), seq(29, 44))
+  cols = c(seq(10, 25), seq(30, 45))
 
   ##########
   writeLines("...")
@@ -242,7 +242,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   writeLines("Descriptive statistics from each column in stacked dataset")
   writeLines("")
 
-  cols_stack = c(seq(10, 13), seq(16, 19))
+  cols_stack = c(seq(10, 13), seq(17, 20))
   print(generate_summary(df_stack[cols_stack]))
   writeLines("")
 
@@ -314,7 +314,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   writeLines("Descriptive statistics from each column in role dataset")
   writeLines("")
 
-  cols_role = c(seq(10, 17), seq(21, 28))
+  cols_role = c(seq(10, 17), seq(22, 29))
   print(generate_summary(df_role[cols_role]))
   writeLines("")
 

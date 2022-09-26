@@ -13,7 +13,7 @@ concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_fil
               "hr_subj1_ecg_linear", "hr_subj2_ecg_linear", "hr_subj1_ecg_nearest", "hr_subj2_ecg_nearest",
               "rr_subj1_linear",     "rr_subj2_linear",     "rr_subj1_nearest",     "rr_subj2_nearest",
               "rr_subj1_ecg_linear", "rr_subj2_ecg_linear", "rr_subj1_ecg_nearest", "rr_subj2_ecg_nearest",
-              "msg1", "msg2", "Gender")
+              "msg1", "msg2", "Gender", "Exp")
   set_male = c("b005", "b006", "b007", "b008",
                "b009", "b010", "b011", "b012",
                "b013", "b014", "b015", "b016",
@@ -116,7 +116,9 @@ concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_fil
       else
       {
         df$Gender = "F"
-      }  
+      }
+      # Fill Exp column
+      df$Exp = sprintf("%02d", floor((as.integer(substr(df$folder, 2, 5)) - 1) / 4) + 1)
       # Fill derivative  columns
       df$d_hr_subj1_linear      = derivate(df$hr_subj1_linear)
       df$d_hr_subj2_linear      = derivate(df$hr_subj2_linear)
