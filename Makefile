@@ -30,8 +30,6 @@ runprep:
 runopti:
 	python3 03_optical_flow/optical_flow.py data/b002/01_sync data/b002
 	python3 03_optical_flow/optical_flow.py data/b004/01_sync data/b004
-	python3 03_optical_flow/optical_flow.py data/b006/01_sync data/b006
-	python3 03_optical_flow/optical_flow.py data/b008/01_sync data/b008
 	python3 03_optical_flow/optical_flow.py data/b010/01_sync data/b010
 	python3 03_optical_flow/optical_flow.py data/b012/01_sync data/b012
 	python3 03_optical_flow/optical_flow.py data/b014/01_sync data/b014
@@ -55,29 +53,27 @@ runopti:
 
 runfilt:
 	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b002
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b004
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b006
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b008
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b010
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b012
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b014
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b016
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b018
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b020
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b022
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b024
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b026
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b028
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b030
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b032
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b034
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b036
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b038
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b040
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b042
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b044
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b046
-	python3 04_optical_flow_filter/optical_flow_filter.py data/b002/03_optical_flow data/b048
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b004/03_optical_flow data/b004
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b010/03_optical_flow data/b010
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b012/03_optical_flow data/b012
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b014/03_optical_flow data/b014
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b016/03_optical_flow data/b016
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b018/03_optical_flow data/b018
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b020/03_optical_flow data/b020
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b022/03_optical_flow data/b022
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b024/03_optical_flow data/b024
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b026/03_optical_flow data/b026
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b028/03_optical_flow data/b028
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b030/03_optical_flow data/b030
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b032/03_optical_flow data/b032
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b034/03_optical_flow data/b034
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b036/03_optical_flow data/b036
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b038/03_optical_flow data/b038
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b040/03_optical_flow data/b040
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b042/03_optical_flow data/b042
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b044/03_optical_flow data/b044
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b046/03_optical_flow data/b046
+	python3 04_optical_flow_filter/optical_flow_filter.py data/b048/03_optical_flow data/b048
 
 
 # Profiling of WinOp.py

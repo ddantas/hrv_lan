@@ -58,7 +58,7 @@ def search_tf(arr, s):
   return -1
 
 def search_ft(arr, s):
-  for i in range(s, len(arr)):
+  for i in range(s, len(arr) - 1):
     if (arr[i] == False):
       if (arr[i+1] == True):
         return i+1
@@ -90,7 +90,7 @@ def filter_column(df, col, npix_filt):
         print("%d..%d\n" % (b, c))
         interpolate(df, b, c, col)
       else:
-        print("%d..end\n" % (b, c))
+        print("%d..end\n" % (b))
         df.iloc[b+1:, col] = df.iloc[b, col]
         break
     else:
@@ -103,6 +103,10 @@ def erode_column(df, col_npix, th = 400, w_filt = 1):
       npix_filt[i+1 : i+1+w_filt] = False
   return npix_filt
 
+def extrapolate(df):
+  while (len(df) < 19210):
+    df = df.append(df.iloc[-1], ignore_index=True)
+  return df
 
 def write_to_dataset_filter(filename_input, filename_output, filename_subsamp):
   df = pd.read_csv(filename_input, sep="\t")
