@@ -116,7 +116,7 @@ get_correlationts <- function(df) {
 ## Calcula a correlação entre duas séries temporais e o p-valor via block bootstrap
 correlationts <- function(x, y, block=10, nboot=500) {
     
-    orig <- abs(cor(x,y))
+    orig <- abs(cor(x, y, method="spearman"))
     
     distr <- array(0, nboot)
     for(boot in 1:nboot) {
@@ -129,10 +129,12 @@ correlationts <- function(x, y, block=10, nboot=500) {
             x.b <- c(x.b, x[tmpx[i]:(tmpx[i]+block-1)])
             y.b <- c(y.b, y[tmpy[i]:(tmpy[i]+block-1)])
         }
-        distr[boot] <- abs(cor(x.b, y.b))
+        distr[boot] <- abs(cor(x.b, y.b, method="spearman"))
     }
     p <- length(which(distr > orig))/nboot
-    return (p)
+    res$p.value <- p
+    res$coef    <- orig
+    return (res)
 }
 
 

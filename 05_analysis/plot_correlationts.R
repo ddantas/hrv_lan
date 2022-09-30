@@ -23,7 +23,7 @@ plot_correlationts <- function(data1, data2, labels, exp, str_title, outputDir="
     names(df_res) = c("subj1", "subj2")
 
     if (nrow(df_res) > 0) {
-      corr = get_correlationts(df_res)
+      corr = get_correlationts(df_res)$coef
       df_corr = rbind(df_corr, c(corr, l, exp))
     }
   }
