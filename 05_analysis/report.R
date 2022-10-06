@@ -13,11 +13,11 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   source('print_table_html.R')
   source('pval_color.R')
   source('corr_color.R')
-  #source('script.R')
+  source('script.R')
   #source('plot_power.R')
 
   DANTAS = FALSE
-  DANTAS_PDC = TRUE
+  DANTAS_PDC = FALSE
   DANTAS_CORR = TRUE
   FELIPE = FALSE
   
@@ -124,7 +124,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   }
   rownames(conditions) = NULL
 
-  #for (ic in seq(ic_min))
+  #for (ic in seq(ic_min, ic_min+6))
   for (ic in seq(1, dim(conditions)[1]))
   {
     rows = eval(parse(text=conditions[ic, 1]))
@@ -133,6 +133,9 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     str2 = conditions[ic, 4]
     col_hand1 = "subj1_flow_l_cx"
     col_hand2 = "subj2_flow_l_cx"
+    hand_pos_data1 = df[rows, col_hand1, drop=FALSE]
+    hand_pos_data2 = df[rows, col_hand2, drop=FALSE]
+    subj = c(1, 2)
 
     IsImit = df[rows, "IsImit", drop=FALSE]
     IsImit[is.na(IsImit)] = FALSE
@@ -166,28 +169,35 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         report_tc_test(data1, data2, str_title, confidence=0.95, str1, str2)
         plot_tc_distribution(data1, data2, str_title, prompt, outputDir, "Heart rate", str1, str2)
       }
+      if ( (DANTAS_PDC | DANTAS_CORR) & ic >= ic_min)
+      {
+      }
       if (DANTAS_CORR & ic >= ic_min)
       {
-        subj = c(1, 2)
         folder = strsplit(exp_label, '_')[[1]][1]
         label = strsplit(exp_label, '_')[[1]][2]
         #cor_val = orig <- abs(cor(data1, data2, method="spearman"))
         plot_tc_correlation(data1, data2, str_title, prompt, outputDir)
         result = correlationts(data1[,1], data2[,1])
+        df_corr = cbind(data1, data2, hand_pos_data1, hand_pos_data2)
+        result2 = covar(df_corr);
+        print(result2)
         writeLines(paste("Regarding correlation between Subject ", subj[1], " and Subject ", subj[2], ":\n", sep = ""))
         writeLines(paste("Correlation = ", result$coef))
         writeLines(paste("P-value     = ", result$p.value))
-        writeLines(paste("IsImit      = ", val_imit))
         writeLines(paste("IsSync      = ", val_sync))
+        writeLines(paste("IsSync      = ", val_sync))
+        writeLines(paste("Covar       = ", abs(result2$P[1, 2])))
+        writeLines(paste("T-value     = ", abs(result2$tvalue[1, 2])))
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr12", result$coef)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval12", result$p.value)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsImit", val_imit)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsSync", val_sync)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "covar12", abs(result2$P[1, 2]))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "tvalue12", abs(result2$tvalue[1, 2]))
       }
       if (DANTAS_PDC & ic >= ic_min)
       {
-        subj = c(1, 2)
-        hand_pos_data1 = df[rows, col_hand1, drop=FALSE]
         if (!grepl("lude", str_title)) # Not prelude or interlude
         {
           df_pdc = cbind(data1, data2, hand_pos_data1)
@@ -230,6 +240,63 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       }
     }
   }
+  if (DANTAS_CORR)
+  {
+    writeLines(paste("<h3>Wilcoxon paired P-values for every combination of label</h3>", sep=""))
+    arr_label = c("iimitator1", "iimitator2", "si", "nvm", "nvnm", "interlude", "prelude")
+    writeLines(paste("<table border=1>", sep=""))
+    writeLines(paste("  <tr>", sep=""))
+    writeLines(paste("    <td></td>", sep=""))
+    for (j in seq(length(arr_label)))
+    {
+      str_j = arr_label[j]
+      writeLines(paste("    <td>", str_j, "</td>", sep=""))
+    }
+    writeLines(paste("  </tr>", sep=""))
+    for (i in seq(length(arr_label)))
+    {
+      ##########
+      str_i = arr_label[i]
+      writeLines(paste("  <tr>", sep=""))
+      writeLines(paste("    <td>", str_i, "</td>", sep=""))
+      arr_i = df_pvals[df_pvals$to_col=="corr12" & df_pvals$label==str_i, "val"]
+      for (j in seq(length(arr_label)))
+      {
+        if (i <= j)
+        {
+          writeLines(paste("    <td>-</td>", sep=""))
+          next
+        }
+        str_j = arr_label[j]
+        arr_j = df_pvals[df_pvals$to_col=="corr12" & df_pvals$label==str_j, "val"]
+        result = wilcox.test(arr_i, arr_j, paired=TRUE)
+        pval = result$p.value
+        pval_color
+        writeLines(paste("    <td><div style='color:", pval_color(pval), "'>", pval, "</div></td>", sep=""))
+      }
+      writeLines(paste("  </tr>", sep=""))
+    }
+    writeLines(paste("</table>", sep=""))
+    ##########
+    str_title = "boxplot_every_label_combination"
+    outputSubdir = "plot_report"
+    if (outputDir != "")
+    {
+      outputFile     = paste("boxplot_report_", str_title, ".png", sep="")
+      outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
+      png(outputFullname, width=640);
+    }
+    x = ggplot(df_pvals[df_pvals$to_col == "corr12",], aes(x=label, y=.data$val, color=label)) + geom_boxplot()
+    grid::grid.draw(x)
+    if (outputDir != "")
+    {
+      writeLines(paste("<td><img src='", outputSubdir, "/", outputFile, "'></td>", sep=""))
+      writeLines("")
+      writeLines("")
+      dev.off()
+    }
+    ##########
+  }
 
   #print(df_pvals)
   
@@ -270,6 +337,16 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       writeLines(paste("<h3>P-values of Granger causality from ", col2, " to ", col_hand2, "</h3>", sep=""))
       df_tmp = df_pvals_wide[df_pvals_wide$col == col2 & df_pvals_wide$to_col == "granger12",]
       print_table_html(df_tmp, pval_color)
+
+      writeLines("...")
+      writeLines(paste("<h3>COVAR</h3>", sep=""))
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "covar12",]
+      print_table_html(df_tmp, corr_color)
+
+      writeLines("...")
+      writeLines(paste("<h3>T-value</h3>", sep=""))
+      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "tvalue12",]
+      print_table_html(df_tmp, corr_color)
     }
   }
 

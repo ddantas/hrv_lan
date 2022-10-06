@@ -391,3 +391,33 @@ GPDC1 <- function(model, lambda, K){
     return(Apdc^2)
 }
 
+covar <- function(dados, method="spearman")
+{
+    ncols = ncol(dados)
+    nrows = nrow(dados)
+    R <- cor(dados, method=c(method))
+    Rinv <- solve(R)
+    D <- diag(1/sqrt(diag(Rinv)))
+    P <- -D %*% Rinv %*% D
+    result$P = P
+    for (i in 1:ncols) {
+        P[i,i] <- 1
+    }
+    tvalue <- matrix(0, ncols, ncols)
+    k <- ncols - 2
+    for (i in 1:(ncols - 1)) {
+        for (j in (i+1):ncols) {
+            tvalue[i,j] <- ((sqrt(nrows-k-2)*P[i,j])/(sqrt(1-P[i,j]^2)))
+            tvalue[j,i] <- tvalue[i,j]
+        }
+    }
+    result$tvalue = tvalue
+    return(result)
+#    pvalue <- matrix(0, num_genes,num_genes)
+#    for (i in 1:(num_genes-1)) {
+#        for (j in (i+1):num_genes) {
+#            pvalue[i,j] <- 2*(1-pt(abs(tvalue[i,j]), (tam_amostra-k-2)))
+#            pvalue[j,i] <- pvalue[i,j]
+#        }
+#    }
+}
