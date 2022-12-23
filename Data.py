@@ -28,7 +28,9 @@ class Data:
 
   def __init__(self, datatype):
     self.datatype = datatype
-    if (datatype != k.TYPE_RR and datatype != k.TYPE_ECG):
+    if (datatype != k.TYPE_RR  and \
+        datatype != k.TYPE_ECG and \
+        datatype != k.TYPE_SPK):
       raise ValueError("Invalid datatype in Data constructor")
     self.t0 = TIME_UNINITIALIZED
     self.time = []
@@ -110,6 +112,8 @@ class Data:
       df = pd.DataFrame(data = {"time": self.time,
                                 "timestamp": self.timestamp,
                                 "ecg": self.values_ecg})
+    elif (self.datatype == k.TYPE_SPK):
+      df = pd.DataFrame(data = {"time": self.time})
     return df
 
 
@@ -128,7 +132,10 @@ class Data:
 
     df = pd.read_csv(filename, sep="\t")
 
-    if len(df.columns) < 3:
+    if ( (len(df.columns) == 1) and (df.columns[0] == "time") ):
+      data = Data(k.TYPE_SPK)
+      data.time        = df.loc[:, "time"].tolist()
+    elif len(df.columns) < 3:
       raise ValueError("At least three columns expected.")
 
     if (df.columns[2] == "rr_interval"):
@@ -152,6 +159,8 @@ class Data:
   # Find list of ECG or RR packet times. The number of items corresponds to
   # the number of packages received from the Polar sensor.
   def find_packet_times(self):
+    if ( (self.datatype != k.TYPE_ECG) and (self.datatype != k.TYPE_RR) ):
+      return None
     from collections import Counter
     dic = Counter(self.time)
     packet_times = list(dic.keys())
@@ -161,6 +170,8 @@ class Data:
   #
   # Find average packet time interval of ECG or RR data. 
   def find_avg_packet_interval(self):
+    if ( (self.datatype != k.TYPE_ECG) and (self.datatype != k.TYPE_RR) ):
+      return None
     packet_times = self.find_packet_times()
     avg_packet_interval = (packet_times[-1] - packet_times[0]) / (len(packet_times) - 1)
     return avg_packet_interval

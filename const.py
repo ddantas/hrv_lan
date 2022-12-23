@@ -23,6 +23,7 @@ EXT_SUBS  = "_flow_subs.tsv"
 ## Used mostly by Polar.py, Data.py and Plot.py
 TYPE_RR  = "R"
 TYPE_ECG = "E"
+TYPE_SPK = "S"
 
 ## Used mostly by WinOp.py
 FOLDER_DATA = "data"
@@ -38,11 +39,6 @@ FILENAME_ECG_S2   = "subj2_ecg.tsv"
 FILENAME_RR       = "subj%d_rr.tsv"
 FILENAME_RR_S1    = "subj1_rr.tsv"
 FILENAME_RR_S2    = "subj2_rr.tsv"
-
-# "subj%d_ecg_inferred_rr.tsv"
-FILENAME_ECG_RR       = FILENAME_ECG.replace(EXT_TSV, EXT_INFERRED)
-FILENAME_ECG_RR_S1    = FILENAME_ECG_S1.replace(EXT_TSV, EXT_INFERRED)
-FILENAME_ECG_RR_S2    = FILENAME_ECG_S2.replace(EXT_TSV, EXT_INFERRED)
 
 FILENAME_VIDEO    = "subj%d.mp4"
 FILENAME_VIDEO_S1 = "subj1.mp4"
@@ -79,6 +75,11 @@ FILENAME_RR_NN           = FILENAME_RR.replace(EXT_TSV, EXT_NN)
 FILENAME_RR_NN_S1        = FILENAME_RR_S1.replace(EXT_TSV, EXT_NN)
 FILENAME_RR_NN_S2        = FILENAME_RR_S2.replace(EXT_TSV, EXT_NN)
 
+# "subj%d_ecg_inferred_rr.tsv"
+FILENAME_ECG_RR       = FILENAME_ECG.replace(EXT_TSV, EXT_INFERRED)
+FILENAME_ECG_RR_S1    = FILENAME_ECG_S1.replace(EXT_TSV, EXT_INFERRED)
+FILENAME_ECG_RR_S2    = FILENAME_ECG_S2.replace(EXT_TSV, EXT_INFERRED)
+
 # "subj%d_ecg_inferred_rr_linear.tsv"
 FILENAME_ECG_RR_LIN      = FILENAME_ECG_RR.replace(EXT_TSV, EXT_LIN)
 FILENAME_ECG_RR_LIN_S1   = FILENAME_ECG_RR_S1.replace(EXT_TSV, EXT_LIN)
@@ -88,6 +89,11 @@ FILENAME_ECG_RR_LIN_S2   = FILENAME_ECG_RR_S2.replace(EXT_TSV, EXT_LIN)
 FILENAME_ECG_RR_NN       = FILENAME_ECG_RR.replace(EXT_TSV, EXT_NN)
 FILENAME_ECG_RR_NN_S1    = FILENAME_ECG_RR_S1.replace(EXT_TSV, EXT_NN)
 FILENAME_ECG_RR_NN_S2    = FILENAME_ECG_RR_S2.replace(EXT_TSV, EXT_NN)
+
+# "subj%d_spk.tsv"
+FILENAME_RR_SPK       = "subj%d_rr_spk.tsv"
+FILENAME_RR_SPK_S1    = "subj1_rr_spk.tsv"
+FILENAME_RR_SPK_S2    = "subj2_rr_spk.tsv"
 
 ## Used mostly by 03_optical_flow/optical_flow.py
 FOLDER_OPTI = "03_optical_flow"

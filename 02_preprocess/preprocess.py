@@ -18,6 +18,7 @@ import pandas as pd
 
 import rr_interpolation
 import rr_inference
+import rr_spike
 
 # Import module from parent folder
 filepath = os.path.dirname(__file__)
@@ -225,7 +226,7 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
   filename_rr1 = os.path.join(input_path, k.FILENAME_RR_S1)
   filename_rr2 = os.path.join(input_path, k.FILENAME_RR_S2)
 
-  # subj%d_rr_inferred_from_ecg.tsv
+  # subj%d_ecg.tsv
   filename_ecg1 = os.path.join(input_path, k.FILENAME_ECG_S1)
   filename_ecg2 = os.path.join(input_path, k.FILENAME_ECG_S2)
 
@@ -265,8 +266,15 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
   # 02_preprocess/subj%d_ecg_inferred_rr_nearest.tsv
   filename_ecg_rr_nearest1 = os.path.join(path_prep, k.FILENAME_ECG_RR_NN_S1)
   filename_ecg_rr_nearest2 = os.path.join(path_prep, k.FILENAME_ECG_RR_NN_S2)
+  # subj%d_rr_spk.tsv
+  filename_rr_spk1 = os.path.join(path_prep, k.FILENAME_RR_SPK_S1)
+  filename_rr_spk2 = os.path.join(path_prep, k.FILENAME_RR_SPK_S2)
   # annotation.eaf
   filename_annot = os.path.join(input_path, filename_annot)
+
+  print("Output spike files:")
+  print(filename_rr_spk1)
+  print(filename_rr_spk2)
 
   ## Linear and NN interpolation
   rr_interpolation.interpolate(filename_rr1, filename_rr_nearest1, filename_rr_linear1, t0, duration)
@@ -274,6 +282,9 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
 
   rr_interpolation.interpolate(filename_ecg_rr1, filename_ecg_rr_nearest1, filename_ecg_rr_linear1, t0, duration)
   rr_interpolation.interpolate(filename_ecg_rr2, filename_ecg_rr_nearest2, filename_ecg_rr_linear2, t0, duration)
+
+  rr_spike.spike(filename_rr1, filename_rr_spk1, t0, duration)
+  rr_spike.spike(filename_rr2, filename_rr_spk2, t0, duration)
 
   ## Generate dataset.tsv
   print("Generating complete dataset...")

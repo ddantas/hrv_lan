@@ -95,6 +95,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$label == 'SI'",                                 "si"),
     c("df$label == 'IImitator1'",                         "iimitator1"),
     c("df$label == 'IImitator2'",                         "iimitator2"),
+    c("df$label == 'Video'",                              "video"),
     c("df$label == 'NVNM'",                               "nvnm"),
     c("df$label == 'NVM'",                                "nvm"),
     c("df$label == 'Prelude'",                            "prelude"),
@@ -243,7 +244,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   if (DANTAS_CORR)
   {
     writeLines(paste("<h3>Wilcoxon paired P-values for every combination of label</h3>", sep=""))
-    arr_label = c("iimitator1", "iimitator2", "si", "nvm", "nvnm", "interlude", "prelude")
+    arr_label = c("iimitator1", "iimitator2", "si", "video", "nvm", "nvnm", "interlude", "prelude")
     writeLines(paste("<table border=1>", sep=""))
     writeLines(paste("  <tr>", sep=""))
     writeLines(paste("    <td></td>", sep=""))

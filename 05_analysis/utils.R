@@ -49,7 +49,9 @@ concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_fil
     for (f in folders){
       writeLines(paste("Folder: ", f))
       ds_path = file.path(f, default_ds_subpath)
+      options(stringsAsFactors=FALSE)
       df = load_data(ds_path)
+      options(stringsAsFactors=TRUE)
 
       # Changing NA to ""
       #df2[is.na(df2$IsImit), 'IsImit'] = ""
@@ -124,6 +126,8 @@ concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_fil
       {
         df$Gender = "F"
       }
+      # Update label with Video
+      df[df$label == "NVNM" & df$time < 100, "label"] = "Video"
       # Fill Exp column
       df$Exp = sprintf("%02d", floor((as.integer(substr(df$folder, 2, 5)) - 1) / 4) + 1)
       # Fill derivative  columns
