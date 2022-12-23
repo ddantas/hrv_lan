@@ -24,7 +24,7 @@ def spike(filename_input, filename_output, t0, duration):
   spike = infer_spike_from_rr(data, t0, duration)
   data_spike = Data.Data(k.TYPE_SPK)
   data_spike.time = spike
-  data_spike.save_raw_data(filename_output)
+  data_spike.save_raw_data(filename_output, 1)
 
 def infer_spike_from_rr(data, t0, duration):
 

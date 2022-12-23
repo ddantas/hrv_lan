@@ -135,22 +135,24 @@ class Data:
     if ( (len(df.columns) == 1) and (df.columns[0] == "time") ):
       data = Data(k.TYPE_SPK)
       data.time        = df.loc[:, "time"].tolist()
+
     elif len(df.columns) < 3:
       raise ValueError("At least three columns expected.")
 
-    if (df.columns[2] == "rr_interval"):
-      data = Data(k.TYPE_RR)
-      data.time        = df.loc[:, "time"].tolist()
-      data.heart_rate  = df.loc[:, "heart_rate"].tolist()
-      data.rr_interval = df.loc[:, "rr_interval"].tolist()
-
-    elif (df.columns[2] == "ecg"):
-      data = Data(k.TYPE_ECG)
-      data.time        = df.loc[:, "time"].tolist()
-      data.timestamp   = df.loc[:, "timestamp"].tolist()
-      data.ecg         = df.loc[:, "ecg"].tolist()
     else:
-      raise ValueError("Unable to detect datatype from column name: " + df.column[2])
+      if (df.columns[2] == "rr_interval"):
+        data = Data(k.TYPE_RR)
+        data.time        = df.loc[:, "time"].tolist()
+        data.heart_rate  = df.loc[:, "heart_rate"].tolist()
+        data.rr_interval = df.loc[:, "rr_interval"].tolist()
+
+      elif (df.columns[2] == "ecg"):
+        data = Data(k.TYPE_ECG)
+        data.time        = df.loc[:, "time"].tolist()
+        data.timestamp   = df.loc[:, "timestamp"].tolist()
+        data.ecg         = df.loc[:, "ecg"].tolist()
+      else:
+        raise ValueError("Unable to detect datatype from column name: " + df.column[2])
 
     return data
 
