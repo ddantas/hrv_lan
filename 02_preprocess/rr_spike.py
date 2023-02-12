@@ -38,9 +38,9 @@ def infer_spike_from_rr(data, t0, duration):
 
   # This quotient converts the rr_interval to seconds
   s = (data.rr_interval[i] / 1024.0) / 2.0
-  print("len = %d" % len(data.rr_interval))
+  #print("len = %d" % len(data.rr_interval))
   while (s < duration and i < len(data.rr_interval) - 1):
-    print(i)
+    #print(i)
     spike.append(s)
     i += 1
     # This quotient converts the rr_interval to seconds

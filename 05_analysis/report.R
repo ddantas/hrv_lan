@@ -14,11 +14,12 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   source('pval_color.R')
   source('corr_color.R')
   source('script.R')
-  #source('plot_power.R')
+  source('plot_hist.R')
 
   DANTAS = FALSE
-  DANTAS_PDC = FALSE
+  DANTAS_PDC = TRUE
   DANTAS_CORR = TRUE
+  DANTAS_REGR = TRUE
   FELIPE = FALSE
   
   outputFullname = paste(outputDir, "/", outputFile, sep="")
@@ -125,7 +126,9 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   }
   rownames(conditions) = NULL
 
-  #for (ic in seq(ic_min, ic_min+6))
+  ## First experiment only
+  #for ( ic in seq(ic_min, ic_min + nrow(cond_label) - 1) )
+  ## All 11 experiments
   for (ic in seq(1, dim(conditions)[1]))
   {
     rows = eval(parse(text=conditions[ic, 1]))
@@ -184,59 +187,96 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         result2 = covar(df_corr);
         print(result2)
         writeLines(paste("Regarding correlation between Subject ", subj[1], " and Subject ", subj[2], ":\n", sep = ""))
-        writeLines(paste("Correlation = ", result$coef))
-        writeLines(paste("P-value     = ", result$p.value))
-        writeLines(paste("IsSync      = ", val_sync))
-        writeLines(paste("IsSync      = ", val_sync))
-        writeLines(paste("Covar       = ", abs(result2$P[1, 2])))
-        writeLines(paste("T-value     = ", abs(result2$tvalue[1, 2])))
+        writeLines(paste("Correlation      = ", result$coef))
+        writeLines(paste("Abs. Correlation = ", result$abs_coef))
+        writeLines(paste("P-value          = ", result$p.value))
+        writeLines(paste("IsImit           = ", val_imit))
+        writeLines(paste("IsSync           = ", val_sync))
+        writeLines(paste("Covar            = ", abs(result2$P[1, 2])))
+        writeLines(paste("T-value          = ", abs(result2$tvalue[1, 2])))
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr12", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr12", result$abs_coef)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval12", result$p.value)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsImit", val_imit)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsSync", val_sync)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "covar12", abs(result2$P[1, 2]))
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "tvalue12", abs(result2$tvalue[1, 2]))
       }
+      if (DANTAS_REGR & ic >= ic_min)
+      {
+        folder = strsplit(exp_label, '_')[[1]][1]
+        label = strsplit(exp_label, '_')[[1]][2]
+        str_title = paste("exp_", exp_label, "__", col1, "_vs_", col2, "_residual", sep="")
+        writeLines("...")
+        writeLines(paste("<h3>", str_title, "</h3>", sep=""))
+
+        hand_regr_data1 = df[rows, c("subj1_flow_l_cx", "subj1_flow_l_cy", "subj1_flow_r_cx", "subj1_flow_r_cy"), drop=FALSE]
+        hand_regr_data2 = df[rows, c("subj2_flow_l_cx", "subj2_flow_l_cy", "subj2_flow_r_cx", "subj2_flow_r_cy"), drop=FALSE]
+        df_regr = cbind(data1, data2, hand_regr_data1, hand_regr_data2)
+
+        formula_data1 = "hr_subj1_linear ~ subj1_flow_l_cx + subj1_flow_l_cy + subj1_flow_r_cx + subj1_flow_r_cy + subj2_flow_l_cx + subj2_flow_l_cy + subj2_flow_r_cx + subj2_flow_r_cy"
+        glm_data1 = glm(formula_data1, df_regr, family=gaussian())
+        residual1 = glm_data1$residuals
+
+        formula_data2 = "hr_subj2_linear ~ subj1_flow_l_cx + subj1_flow_l_cy + subj1_flow_r_cx + subj1_flow_r_cy + subj2_flow_l_cx + subj2_flow_l_cy + subj2_flow_r_cx + subj2_flow_r_cy"
+        glm_data2 = glm(formula_data2, df_regr, family=gaussian())
+        residual2 = glm_data2$residuals
+
+        #formula2_data1 = "hr_subj1_linear ~ subj1_flow_l_cx + subj1_flow_l_cy + subj2_flow_l_cx + subj2_flow_l_cy"
+        #glm2_data2 = glm(formula2_data1, df_regr, family=gaussian())
+
+        plot_tc_correlation(data.frame(residual1), data.frame(residual2), str_title, prompt, outputDir)
+
+        result = correlationts(residual1, residual2)
+        writeLines(paste("Regarding correlation of residuals between Subject ", subj[1], " and Subject ", subj[2], ":\n", sep = ""))
+        writeLines(paste("Residual Correlation      = ", result$coef))
+        writeLines(paste("Residual Abs. Correlation = ", result$abs_coef))
+        writeLines(paste("Residual P-value          = ", result$p.value))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "resid_corr12", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "resid_abscorr12", result$abs_coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "resid_pval12", result$p.value)
+
+      }
       if (DANTAS_PDC & ic >= ic_min)
       {
         if (!grepl("lude", str_title)) # Not prelude or interlude
         {
-          df_pdc = cbind(data1, data2, hand_pos_data1)
+          df_pdc = cbind(data1, data2, hand_pos_data2)
         } else {
           df_pdc = cbind(data1, data2)
         }
         str_title_1 = paste(str_title, "_1", sep="")
         res = plot_pdc_df(df_pdc, str_title_1, outputDir)
-        folder = strsplit(exp_label, '_')[[1]][1]
-        label = strsplit(exp_label, '_')[[1]][2]
+        folder = strsplit(exp_label, "_")[[1]][1]
+        label = strsplit(exp_label, "_")[[1]][2]
 
         report_pdc_new(res, c(1, 2), subj, str_title_1)
-        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "granger12", res$p.value[1, 2])
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "granger12h", res$p.value[1, 2])
         if (!grepl("lude", str_title)) # Not prelude or interlude
         {
           report_pdc_new(res, c(1, 3), subj, str_title_1)
-          df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "granger13", res$p.value[1, 3])
+          df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "granger12f", res$p.value[1, 3])
         }
 
         subj = c(2, 1)
         hand_pos_data2 = df[rows, col_hand2, drop=FALSE]
         if (!grepl("lude", str_title)) # Not prelude or interlude
         {
-          df_pdc = cbind(data2, data1, hand_pos_data2)
+          df_pdc = cbind(data2, data1, hand_pos_data1)
         } else {
           df_pdc = cbind(data2, data1)
         }
         str_title_2 = paste(str_title, "_2", sep="")
         res = plot_pdc_df(df_pdc, str_title_2, outputDir)
-        folder = strsplit(exp_label, '_')[[1]][1]
-        label = strsplit(exp_label, '_')[[1]][2]
-        
+        folder = strsplit(exp_label, "_")[[1]][1]
+        label = strsplit(exp_label, "_")[[1]][2]
+
         report_pdc_new(res, c(1, 2), subj, str_title_2)
-        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, "granger12", res$p.value[1, 2])
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, "granger21h", res$p.value[1, 2])
         if (!grepl("lude", str_title)) # Not prelude or interlude
         {
           report_pdc_new(res, c(1, 3), subj, str_title_2)
-          df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, "granger13", res$p.value[1, 3])
+          df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col2, "granger21f", res$p.value[1, 3])
         }
       }
     }
@@ -260,7 +300,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       str_i = arr_label[i]
       writeLines(paste("  <tr>", sep=""))
       writeLines(paste("    <td>", str_i, "</td>", sep=""))
-      arr_i = df_pvals[df_pvals$to_col=="corr12" & df_pvals$label==str_i, "val"]
+      arr_i = df_pvals[df_pvals$to_col=="abscorr12" & df_pvals$label==str_i, "val"]
       for (j in seq(length(arr_label)))
       {
         if (i <= j)
@@ -269,7 +309,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
           next
         }
         str_j = arr_label[j]
-        arr_j = df_pvals[df_pvals$to_col=="corr12" & df_pvals$label==str_j, "val"]
+        arr_j = df_pvals[df_pvals$to_col=="abscorr12" & df_pvals$label==str_j, "val"]
         result = wilcox.test(arr_i, arr_j, paired=TRUE)
         pval = result$p.value
         pval_color
@@ -287,7 +327,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
       png(outputFullname, width=640);
     }
-    x = ggplot(df_pvals[df_pvals$to_col == "corr12",], aes(x=label, y=.data$val, color=label)) + geom_boxplot()
+    x = ggplot(df_pvals[df_pvals$to_col == "abscorr12",], aes(x=label, y=.data$val, color=label)) + geom_boxplot()
     grid::grid.draw(x)
     if (outputDir != "")
     {
@@ -301,7 +341,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
 
   #print(df_pvals)
   
-  if (DANTAS_PDC | DANTAS_CORR)
+  if (DANTAS_PDC | DANTAS_CORR | DANTAS_REGR)
   {
     df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "to_col"), direction="wide")
     #print(df_pvals_wide)
@@ -309,45 +349,96 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     writeLines(paste("<h3>P-values</h3>", sep=""))
     #print_table_html(df_pvals_wide, pval_color)
     print_table_html(df_pvals_wide, corr_color)
-    for (i in seq(1, length(cols), by = 2))
+    #for (i in seq(1, length(cols), by = 2))
+    outputSubdir = "plot_hist"
+    for (i in seq(1))
     {
       col1 = names(df)[cols[i]]
       col2 = names(df)[cols[i+1]]
 
-      writeLines("...")
-      writeLines(paste("<h3>Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "corr12",]
-      print_table_html(df_tmp, corr_color)
+      if (DANTAS_PDC | DANTAS_CORR)
+      {
+        writeLines("...")
+        writeLines(paste("<h3>Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "corr12",]
+        print_table_html(df_tmp, corr_color)
+        df_hist = data.frame(df_pvals[df_pvals$to_col=="corr12", "val"])
+        str_title = paste(col1, "_", "corr12", sep="")
+        plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="Spearman correlation", label1="Data")
 
-      writeLines("...")
-      writeLines(paste("<h3>P-values of Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "pval12",]
-      print_table_html(df_tmp, pval_color)
+        writeLines("...")
+        writeLines(paste("<h3>Abs. Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "abscorr12",]
+        print_table_html(df_tmp, corr_color)
+        df_hist = data.frame(df_pvals[df_pvals$to_col=="abscorr12", "val"])
+        str_title = paste(col1, "_", "abscorr12", sep="")
+        plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="Abs. Spearman correlation", label1="Data")
 
-      writeLines("...")
-      writeLines(paste("<h3>P-values of Granger causality from ", col1, " to ", col_hand1, "</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "granger13",]
-      print_table_html(df_tmp, pval_color)
+        writeLines("...")
+        writeLines(paste("<h3>P-values of Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "pval12",]
+        print_table_html(df_tmp, pval_color)
+        df_hist = data.frame(df_pvals[df_pvals$to_col=="pval12", "val"])
+        str_title = paste(col1, "_", "pval12", sep="")
+        plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="P-values of Spearman correlation", label1="Data")
 
-      writeLines("...")
-      writeLines(paste("<h3>P-values of Granger causality from ", col2, " to ", col1, "</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col2 & df_pvals_wide$to_col == "granger12",]
-      print_table_html(df_tmp, pval_color)
+        writeLines("...")
+        writeLines(paste("<h3>P-values of Granger causality from ", col1, " to ", col2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "granger12h",]
+        print_table_html(df_tmp, pval_color)
 
-      writeLines("...")
-      writeLines(paste("<h3>P-values of Granger causality from ", col2, " to ", col_hand2, "</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col2 & df_pvals_wide$to_col == "granger12",]
-      print_table_html(df_tmp, pval_color)
+        writeLines("...")
+        writeLines(paste("<h3>P-values of Granger causality from ", col2, " to ", col1, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col2 & df_pvals_wide$to_col == "granger21h",]
+        print_table_html(df_tmp, pval_color)
 
-      writeLines("...")
-      writeLines(paste("<h3>COVAR</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "covar12",]
-      print_table_html(df_tmp, corr_color)
+        writeLines("...")
+        writeLines(paste("<h3>P-values of Granger causality from ", col1, " to ", col_hand2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "granger12f",]
+        print_table_html(df_tmp, pval_color)
 
-      writeLines("...")
-      writeLines(paste("<h3>T-value</h3>", sep=""))
-      df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "tvalue12",]
-      print_table_html(df_tmp, corr_color)
+        writeLines("...")
+        writeLines(paste("<h3>P-values of Granger causality from ", col2, " to ", col_hand1, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col2 & df_pvals_wide$to_col == "granger21f",]
+        print_table_html(df_tmp, pval_color)
+
+        writeLines("...")
+        writeLines(paste("<h3>COVAR</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "covar12",]
+        print_table_html(df_tmp, corr_color)
+
+        writeLines("...")
+        writeLines(paste("<h3>T-value</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "tvalue12",]
+        print_table_html(df_tmp, corr_color)
+      }
+
+      if (DANTAS_REGR)
+      {
+        writeLines("...")
+        writeLines(paste("<h3>Residual Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "resid_corr12",]
+        print_table_html(df_tmp, corr_color)
+        df_hist = data.frame(df_pvals[df_pvals$to_col=="resid_corr12", "val"])
+        str_title = paste(col1, "_", "resid_corr12", sep="")
+        plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="Spearman correlation", label1="Data")
+
+        writeLines("...")
+        writeLines(paste("<h3>Residual Abs. Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "resid_abscorr12",]
+        print_table_html(df_tmp, corr_color)
+        df_hist = data.frame(df_pvals[df_pvals$to_col=="resid_abscorr12", "val"])
+        str_title = paste(col1, "_", "resid_abscorr12", sep="")
+        plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="Abs. Spearman correlation", label1="Data")
+
+        writeLines("...")
+        writeLines(paste("<h3>Residual P-values of Spearman correlation from ", col1, " to ", col2, "</h3>", sep=""))
+        df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == "resid_pval12",]
+        print_table_html(df_tmp, pval_color)
+        df_hist = data.frame(df_pvals[df_pvals$to_col=="resid_pval12", "val"])
+        str_title = paste(col1, "_", "resid_pval12", sep="")
+        plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="P-values of Spearman correlation", label1="Data")
+      }
     }
   }
 

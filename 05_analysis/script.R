@@ -1,7 +1,7 @@
 ################################################################################
 ## Com rank
 
-get_pdc_new <- function(df_pdc) {
+get_pdc_new <- function(df_pdc, lag.max=5) {
 
     data_pdc <- as.matrix(df_pdc)
 
@@ -13,7 +13,7 @@ get_pdc_new <- function(df_pdc) {
     # para realizar a covariância. Além disso, o retorno dela foi alterado para conter variáveis dummy.
 
     ## Seleciona a ordem do VAR/PDC usando o pico da coorrelação cruzada. Lag não pode ser zero.
-    tmp <- ccf(data_pdc[,1], data_pdc[,2], plot=FALSE)
+    tmp <- ccf(data_pdc[,1], data_pdc[,2], plot=FALSE, lag.max=lag.max)
     tmp$acf[which(tmp$lag == 0)] = 0.0
     p <- abs(tmp$lag[which(abs(tmp$acf) == max(abs(tmp$acf)))])
 
@@ -116,7 +116,8 @@ get_correlationts <- function(df) {
 ## Calcula a correlação entre duas séries temporais e o p-valor via block bootstrap
 correlationts <- function(x, y, block=10, nboot=500) {
     
-    orig <- abs(cor(x, y, method="spearman"))
+    orig     <- cor(x, y, method="spearman")
+    abs_orig <- abs(orig)
     
     distr <- array(0, nboot)
     for(boot in 1:nboot) {
@@ -131,9 +132,10 @@ correlationts <- function(x, y, block=10, nboot=500) {
         }
         distr[boot] <- abs(cor(x.b, y.b, method="spearman"))
     }
-    p <- length(which(distr > orig))/nboot
-    res$p.value <- p
-    res$coef    <- orig
+    p <- length(which(distr > abs_orig))/nboot
+    res$p.value  <- p
+    res$coef     <- orig
+    res$abs_coef <- abs_orig
     return (res)
 }
 
