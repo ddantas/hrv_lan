@@ -45,7 +45,10 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   print_separator()
   writeLines(paste("<h2>Descriptive statistics in original dataset</h2>", sep=""))
 
-  cols = c(seq(10, 25), seq(30, 45))
+  cols = c(  seq( which(colnames(df)=="hr_subj1_linear"),
+                  which(colnames(df)=="nn_subj2_ecg_nearest") ),
+             seq( which(colnames(df)=="d_hr_subj1_linear"),
+                  which(colnames(df)=="d_nn_subj2_ecg_nearest") )  )
 
   ##########
   writeLines("...")
@@ -149,10 +152,12 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     IsSync[is.na(IsSync)] = FALSE
     n_sync = sum(IsSync*1)
     val_sync = n_sync / n_imit
-    
-    for (i in 1)
+
+    seq_cols = c(17) #nn_subj1_linear
+    #for (i in 1) #hr_subj1_linear
     #for (i in c(1, 17))
     #for (i in seq(1, length(cols), by = 2))
+    for (i in seq_cols)
     {
       col1 = names(df)[cols[i]]
       col2 = names(df)[cols[i + 1]]
@@ -185,6 +190,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         result = correlationts(data1[,1], data2[,1])
         df_corr = cbind(data1, data2, hand_pos_data1, hand_pos_data2)
         result2 = covar(df_corr);
+        writeLines(paste("Regarding covariance between Subject ", subj[1], ", Subject ", subj[2], " and hand positions:\n", sep = ""))
         print(result2)
         writeLines(paste("Regarding correlation between Subject ", subj[1], " and Subject ", subj[2], ":\n", sep = ""))
         writeLines(paste("Correlation      = ", result$coef))
@@ -214,11 +220,13 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         hand_regr_data2 = df[rows, c("subj2_flow_l_cx", "subj2_flow_l_cy", "subj2_flow_r_cx", "subj2_flow_r_cy"), drop=FALSE]
         df_regr = cbind(data1, data2, hand_regr_data1, hand_regr_data2)
 
-        formula_data1 = "hr_subj1_linear ~ subj1_flow_l_cx + subj1_flow_l_cy + subj1_flow_r_cx + subj1_flow_r_cy + subj2_flow_l_cx + subj2_flow_l_cy + subj2_flow_r_cx + subj2_flow_r_cy"
+        #col1 in {"hr_subj1_linear", "nn_subj1_linear" etc}
+        formula_data1 = paste(col1, " ~ subj1_flow_l_cx + subj1_flow_l_cy + subj1_flow_r_cx + subj1_flow_r_cy + subj2_flow_l_cx + subj2_flow_l_cy + subj2_flow_r_cx + subj2_flow_r_cy")
         glm_data1 = glm(formula_data1, df_regr, family=gaussian())
         residual1 = glm_data1$residuals
 
-        formula_data2 = "hr_subj2_linear ~ subj1_flow_l_cx + subj1_flow_l_cy + subj1_flow_r_cx + subj1_flow_r_cy + subj2_flow_l_cx + subj2_flow_l_cy + subj2_flow_r_cx + subj2_flow_r_cy"
+        #col2 in {"hr_subj2_linear", "nn_subj2_linear" etc}
+        formula_data2 = paste(col2, " ~ subj1_flow_l_cx + subj1_flow_l_cy + subj1_flow_r_cx + subj1_flow_r_cy + subj2_flow_l_cx + subj2_flow_l_cy + subj2_flow_r_cx + subj2_flow_r_cy")
         glm_data2 = glm(formula_data2, df_regr, family=gaussian())
         residual2 = glm_data2$residuals
 
@@ -351,7 +359,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     print_table_html(df_pvals_wide, corr_color)
     #for (i in seq(1, length(cols), by = 2))
     outputSubdir = "plot_hist"
-    for (i in seq(1))
+    for (i in seq_cols)
     {
       col1 = names(df)[cols[i]]
       col2 = names(df)[cols[i+1]]

@@ -401,6 +401,7 @@ covar <- function(dados, method="spearman")
     Rinv <- solve(R)
     D <- diag(1/sqrt(diag(Rinv)))
     P <- -D %*% Rinv %*% D
+    result = list()
     result$P = P
     for (i in 1:ncols) {
         P[i,i] <- 1

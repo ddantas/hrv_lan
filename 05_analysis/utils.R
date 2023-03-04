@@ -20,6 +20,7 @@ concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_fil
               "hr_subj1_ecg_linear", "hr_subj2_ecg_linear", "hr_subj1_ecg_nearest", "hr_subj2_ecg_nearest",
               "rr_subj1_linear",     "rr_subj2_linear",     "rr_subj1_nearest",     "rr_subj2_nearest",
               "rr_subj1_ecg_linear", "rr_subj2_ecg_linear", "rr_subj1_ecg_nearest", "rr_subj2_ecg_nearest",
+              "nn_subj1_ecg_linear", "nn_subj2_ecg_linear", "nn_subj1_ecg_nearest", "nn_subj2_ecg_nearest",
               "msg1", "msg2", "Gender", "Exp")
   set_male = c("b005", "b006", "b007", "b008",
                "b009", "b010", "b011", "b012",
@@ -148,6 +149,11 @@ concatenate_datasets <- function(folders, filename_output, ds_files, ds_flow_fil
       df$d_rr_subj2_ecg_linear  = derivate(df$rr_subj2_ecg_linear)
       df$d_rr_subj1_ecg_nearest = derivate(df$rr_subj1_ecg_nearest)
       df$d_rr_subj2_ecg_nearest = derivate(df$rr_subj2_ecg_nearest)
+
+      df$d_nn_subj1_ecg_linear  = derivate(df$nn_subj1_ecg_linear)
+      df$d_nn_subj2_ecg_linear  = derivate(df$nn_subj2_ecg_linear)
+      df$d_nn_subj1_ecg_nearest = derivate(df$nn_subj1_ecg_nearest)
+      df$d_nn_subj2_ecg_nearest = derivate(df$nn_subj2_ecg_nearest)
 
       # Fill columns with optical flow data
       if (!is.null(ds_flow_files))
