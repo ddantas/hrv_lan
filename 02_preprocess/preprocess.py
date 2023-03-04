@@ -106,6 +106,8 @@ def create_data_file(input_path,
        filename_rr_nearest1, filename_rr_nearest2,
        filename_ecg_rr_linear1, filename_ecg_rr_linear2,
        filename_ecg_rr_nearest1, filename_ecg_rr_nearest2,
+       filename_ecg_nn_linear1, filename_ecg_nn_linear2,
+       filename_ecg_nn_nearest1, filename_ecg_nn_nearest2,
        filename_annot, filename_dataset):
 
   
@@ -132,19 +134,29 @@ def create_data_file(input_path,
   hr2_nearest = data_hr2_nearest.heart_rate
   rr2_nearest = data_hr2_nearest.rr_interval
 
-  data_hr1_ecg_linear = Data.Data.load_raw_data(filename_ecg_rr_linear1)
-  data_hr2_ecg_linear = Data.Data.load_raw_data(filename_ecg_rr_linear2)
-  hr1_ecg_linear = data_hr1_ecg_linear.heart_rate
-  rr1_ecg_linear = data_hr1_ecg_linear.rr_interval
-  hr2_ecg_linear = data_hr2_ecg_linear.heart_rate
-  rr2_ecg_linear = data_hr2_ecg_linear.rr_interval
+  data_hr1_ecg_rr_linear = Data.Data.load_raw_data(filename_ecg_rr_linear1)
+  data_hr2_ecg_rr_linear = Data.Data.load_raw_data(filename_ecg_rr_linear2)
+  hr1_ecg_rr_linear = data_hr1_ecg_rr_linear.heart_rate
+  rr1_ecg_rr_linear = data_hr1_ecg_rr_linear.rr_interval
+  hr2_ecg_rr_linear = data_hr2_ecg_rr_linear.heart_rate
+  rr2_ecg_rr_linear = data_hr2_ecg_rr_linear.rr_interval
 
-  data_hr1_ecg_nearest = Data.Data.load_raw_data(filename_ecg_rr_nearest1)
-  data_hr2_ecg_nearest = Data.Data.load_raw_data(filename_ecg_rr_nearest2)
-  hr1_ecg_nearest = data_hr1_ecg_nearest.heart_rate
-  rr1_ecg_nearest = data_hr1_ecg_nearest.rr_interval
-  hr2_ecg_nearest = data_hr2_ecg_nearest.heart_rate
-  rr2_ecg_nearest = data_hr2_ecg_nearest.rr_interval
+  data_hr1_ecg_rr_nearest = Data.Data.load_raw_data(filename_ecg_rr_nearest1)
+  data_hr2_ecg_rr_nearest = Data.Data.load_raw_data(filename_ecg_rr_nearest2)
+  hr1_ecg_rr_nearest = data_hr1_ecg_rr_nearest.heart_rate
+  rr1_ecg_rr_nearest = data_hr1_ecg_rr_nearest.rr_interval
+  hr2_ecg_rr_nearest = data_hr2_ecg_rr_nearest.heart_rate
+  rr2_ecg_rr_nearest = data_hr2_ecg_rr_nearest.rr_interval
+
+  data_hr1_ecg_nn_linear = Data.Data.load_raw_data(filename_ecg_nn_linear1)
+  data_hr2_ecg_nn_linear = Data.Data.load_raw_data(filename_ecg_nn_linear2)
+  nn1_ecg_nn_linear = data_hr1_ecg_nn_linear.rr_interval
+  nn2_ecg_nn_linear = data_hr2_ecg_nn_linear.rr_interval
+
+  data_hr1_ecg_nn_nearest = Data.Data.load_raw_data(filename_ecg_nn_nearest1)
+  data_hr2_ecg_nn_nearest = Data.Data.load_raw_data(filename_ecg_nn_nearest2)
+  nn1_ecg_nn_nearest = data_hr1_ecg_nn_nearest.rr_interval
+  nn2_ecg_nn_nearest = data_hr2_ecg_nn_nearest.rr_interval
 
   tiers_dict, time_end = construct_dict_from_eaf(filename_annot)
 
@@ -185,20 +197,25 @@ def create_data_file(input_path,
   content['hr_subj1_nearest'] = hr1_nearest
   content['hr_subj2_nearest'] = hr2_nearest
 
-  content['hr_subj1_ecg_linear'] = hr1_ecg_linear
-  content['hr_subj2_ecg_linear'] = hr2_ecg_linear
-  content['hr_subj1_ecg_nearest'] = hr1_ecg_nearest
-  content['hr_subj2_ecg_nearest'] = hr2_ecg_nearest
+  content['hr_subj1_ecg_linear'] = hr1_ecg_rr_linear
+  content['hr_subj2_ecg_linear'] = hr2_ecg_rr_linear
+  content['hr_subj1_ecg_nearest'] = hr1_ecg_rr_nearest
+  content['hr_subj2_ecg_nearest'] = hr2_ecg_rr_nearest
 
   content['rr_subj1_linear'] = rr1_linear
   content['rr_subj2_linear'] = rr2_linear
   content['rr_subj1_nearest'] = rr1_nearest
   content['rr_subj2_nearest'] = rr2_nearest
 
-  content['rr_subj1_ecg_linear'] = rr1_ecg_linear
-  content['rr_subj2_ecg_linear'] = rr2_ecg_linear
-  content['rr_subj1_ecg_nearest'] = rr1_ecg_nearest
-  content['rr_subj2_ecg_nearest'] = rr2_ecg_nearest
+  content['rr_subj1_ecg_linear'] = rr1_ecg_rr_linear
+  content['rr_subj2_ecg_linear'] = rr2_ecg_rr_linear
+  content['rr_subj1_ecg_nearest'] = rr1_ecg_rr_nearest
+  content['rr_subj2_ecg_nearest'] = rr2_ecg_rr_nearest
+
+  content['nn_subj1_ecg_linear'] = nn1_ecg_nn_linear
+  content['nn_subj2_ecg_linear'] = nn2_ecg_nn_linear
+  content['nn_subj1_ecg_nearest'] = nn1_ecg_nn_nearest
+  content['nn_subj2_ecg_nearest'] = nn2_ecg_nn_nearest
 
   dfs = []
   for key in tiers_dict.keys():
@@ -234,6 +251,10 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
   filename_ecg_rr1 = os.path.join(path_prep, k.FILENAME_ECG_RR_S1)
   filename_ecg_rr2 = os.path.join(path_prep, k.FILENAME_ECG_RR_S2)
 
+  # subj%d_nn_inferred_from_ecg.tsv
+  filename_ecg_nn1 = os.path.join(path_prep, k.FILENAME_ECG_NN_S1)
+  filename_ecg_nn2 = os.path.join(path_prep, k.FILENAME_ECG_NN_S2)
+
   print("Input files:")
   print(filename_rr1)
   print(filename_rr2)
@@ -243,11 +264,19 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
   print("Output files:")
   print(filename_ecg_rr1)
   print(filename_ecg_rr2)
+  print(filename_ecg_nn1)
+  print(filename_ecg_nn2)
 
   ## Infer RR intervals from ECG
-  print("Inferring intervals from ECG...")
-  rr_inference.infer_rr_intervals_from_ecg(filename_ecg1, filename_ecg_rr1)
-  rr_inference.infer_rr_intervals_from_ecg(filename_ecg2, filename_ecg_rr2)
+  print("Inferring RR intervals from ECG...")
+  rr_inference.save_rr_intervals_from_ecg(filename_ecg1, filename_ecg_rr1)
+  rr_inference.save_rr_intervals_from_ecg(filename_ecg2, filename_ecg_rr2)
+
+  ## Infer NN intervals from ECG
+  print("Inferring NN intervals from ECG...")
+  rr_inference.save_nn_intervals_from_ecg(filename_ecg1, filename_ecg_nn1)
+  rr_inference.save_nn_intervals_from_ecg(filename_ecg2, filename_ecg_nn2)
+
   print("Done.")
 
   ## Generate filenames
@@ -258,14 +287,20 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
   filename_rr_linear1 = os.path.join(path_prep, k.FILENAME_RR_LIN_S1)
   filename_rr_linear2 = os.path.join(path_prep, k.FILENAME_RR_LIN_S2)
   # 02_preprocess/subj%d_rr_nearest.tsv
-  filename_rr_nearest1 = os.path.join(path_prep, k.FILENAME_RR_NN_S1)
-  filename_rr_nearest2 = os.path.join(path_prep, k.FILENAME_RR_NN_S2)
+  filename_rr_nearest1 = os.path.join(path_prep, k.FILENAME_RR_NEAR_S1)
+  filename_rr_nearest2 = os.path.join(path_prep, k.FILENAME_RR_NEAR_S2)
   # 02_preprocess/subj%d_ecg_inferred_rr_linear.tsv
   filename_ecg_rr_linear1 = os.path.join(path_prep, k.FILENAME_ECG_RR_LIN_S1)
   filename_ecg_rr_linear2 = os.path.join(path_prep, k.FILENAME_ECG_RR_LIN_S2)
   # 02_preprocess/subj%d_ecg_inferred_rr_nearest.tsv
-  filename_ecg_rr_nearest1 = os.path.join(path_prep, k.FILENAME_ECG_RR_NN_S1)
-  filename_ecg_rr_nearest2 = os.path.join(path_prep, k.FILENAME_ECG_RR_NN_S2)
+  filename_ecg_rr_nearest1 = os.path.join(path_prep, k.FILENAME_ECG_RR_NEAR_S1)
+  filename_ecg_rr_nearest2 = os.path.join(path_prep, k.FILENAME_ECG_RR_NEAR_S2)
+  # 02_preprocess/subj%d_ecg_inferred_nn_linear.tsv
+  filename_ecg_nn_linear1 = os.path.join(path_prep, k.FILENAME_ECG_NN_LIN_S1)
+  filename_ecg_nn_linear2 = os.path.join(path_prep, k.FILENAME_ECG_NN_LIN_S2)
+  # 02_preprocess/subj%d_ecg_inferred_nn_nearest.tsv
+  filename_ecg_nn_nearest1 = os.path.join(path_prep, k.FILENAME_ECG_NN_NEAR_S1)
+  filename_ecg_nn_nearest2 = os.path.join(path_prep, k.FILENAME_ECG_NN_NEAR_S2)
   # subj%d_rr_spk.tsv
   filename_rr_spk1 = os.path.join(path_prep, k.FILENAME_RR_SPK_S1)
   filename_rr_spk2 = os.path.join(path_prep, k.FILENAME_RR_SPK_S2)
@@ -283,6 +318,9 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
   rr_interpolation.interpolate(filename_ecg_rr1, filename_ecg_rr_nearest1, filename_ecg_rr_linear1, t0, duration)
   rr_interpolation.interpolate(filename_ecg_rr2, filename_ecg_rr_nearest2, filename_ecg_rr_linear2, t0, duration)
 
+  rr_interpolation.interpolate(filename_ecg_nn1, filename_ecg_nn_nearest1, filename_ecg_nn_linear1, t0, duration)
+  rr_interpolation.interpolate(filename_ecg_nn2, filename_ecg_nn_nearest2, filename_ecg_nn_linear2, t0, duration)
+
   rr_spike.spike(filename_rr1, filename_rr_spk1, t0, duration)
   rr_spike.spike(filename_rr2, filename_rr_spk2, t0, duration)
 
@@ -293,6 +331,8 @@ def write_to_dataset(input_path, path_prep, filename_dataset, filename_annot):
        filename_rr_nearest1, filename_rr_nearest2,
        filename_ecg_rr_linear1, filename_ecg_rr_linear2,
        filename_ecg_rr_nearest1, filename_ecg_rr_nearest2,
+       filename_ecg_nn_linear1, filename_ecg_nn_linear2,
+       filename_ecg_nn_nearest1, filename_ecg_nn_nearest2,
        filename_annot, filename_dataset)
   print("Done.")
 

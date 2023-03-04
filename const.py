@@ -14,8 +14,9 @@ import os
 
 EXT_TSV = ".tsv"
 EXT_LIN = "_linear.tsv"
-EXT_NN  = "_nearest.tsv"
-EXT_INFERRED  = "_inferred_rr.tsv"
+EXT_NEAR  = "_nearest.tsv"
+EXT_INFERRED_RR = "_inferred_rr.tsv"
+EXT_INFERRED_NN = "_inferred_nn.tsv"
 EXT_FLOW  = "_flow.tsv"
 EXT_FILT  = "_flow_filter.tsv"
 EXT_SUBS  = "_flow_subs.tsv"
@@ -63,6 +64,7 @@ DATASET_HEADERS = ['folder', 'annotator', 'block', 'label', 'time', 'IsImit', 'I
                    'hr_subj1_ecg_linear', 'hr_subj2_ecg_linear', 'hr_subj1_ecg_nearest', 'hr_subj2_ecg_nearest', \
                    'rr_subj1_linear',     'rr_subj2_linear',     'rr_subj1_nearest',     'rr_subj2_nearest', \
                    'rr_subj1_ecg_linear', 'rr_subj2_ecg_linear', 'rr_subj1_ecg_nearest', 'rr_subj2_ecg_nearest', \
+                   'nn_subj1_ecg_linear', 'nn_subj2_ecg_linear', 'nn_subj1_ecg_nearest', 'nn_subj2_ecg_nearest', \
                    'msg1', 'msg2']
 
 # "subj%d_rr_linear.tsv"
@@ -71,14 +73,14 @@ FILENAME_RR_LIN_S1       = FILENAME_RR_S1.replace(EXT_TSV, EXT_LIN)
 FILENAME_RR_LIN_S2       = FILENAME_RR_S2.replace(EXT_TSV, EXT_LIN)
 
 # "subj%d_rr_nearest.tsv"
-FILENAME_RR_NN           = FILENAME_RR.replace(EXT_TSV, EXT_NN)
-FILENAME_RR_NN_S1        = FILENAME_RR_S1.replace(EXT_TSV, EXT_NN)
-FILENAME_RR_NN_S2        = FILENAME_RR_S2.replace(EXT_TSV, EXT_NN)
+FILENAME_RR_NEAR           = FILENAME_RR.replace(EXT_TSV, EXT_NEAR)
+FILENAME_RR_NEAR_S1        = FILENAME_RR_S1.replace(EXT_TSV, EXT_NEAR)
+FILENAME_RR_NEAR_S2        = FILENAME_RR_S2.replace(EXT_TSV, EXT_NEAR)
 
 # "subj%d_ecg_inferred_rr.tsv"
-FILENAME_ECG_RR       = FILENAME_ECG.replace(EXT_TSV, EXT_INFERRED)
-FILENAME_ECG_RR_S1    = FILENAME_ECG_S1.replace(EXT_TSV, EXT_INFERRED)
-FILENAME_ECG_RR_S2    = FILENAME_ECG_S2.replace(EXT_TSV, EXT_INFERRED)
+FILENAME_ECG_RR       = FILENAME_ECG.replace(EXT_TSV, EXT_INFERRED_RR)
+FILENAME_ECG_RR_S1    = FILENAME_ECG_S1.replace(EXT_TSV, EXT_INFERRED_RR)
+FILENAME_ECG_RR_S2    = FILENAME_ECG_S2.replace(EXT_TSV, EXT_INFERRED_RR)
 
 # "subj%d_ecg_inferred_rr_linear.tsv"
 FILENAME_ECG_RR_LIN      = FILENAME_ECG_RR.replace(EXT_TSV, EXT_LIN)
@@ -86,9 +88,24 @@ FILENAME_ECG_RR_LIN_S1   = FILENAME_ECG_RR_S1.replace(EXT_TSV, EXT_LIN)
 FILENAME_ECG_RR_LIN_S2   = FILENAME_ECG_RR_S2.replace(EXT_TSV, EXT_LIN)
 
 # "subj%d_ecg_inferred_rr_nearest.tsv"
-FILENAME_ECG_RR_NN       = FILENAME_ECG_RR.replace(EXT_TSV, EXT_NN)
-FILENAME_ECG_RR_NN_S1    = FILENAME_ECG_RR_S1.replace(EXT_TSV, EXT_NN)
-FILENAME_ECG_RR_NN_S2    = FILENAME_ECG_RR_S2.replace(EXT_TSV, EXT_NN)
+FILENAME_ECG_RR_NEAR       = FILENAME_ECG_RR.replace(EXT_TSV, EXT_NEAR)
+FILENAME_ECG_RR_NEAR_S1    = FILENAME_ECG_RR_S1.replace(EXT_TSV, EXT_NEAR)
+FILENAME_ECG_RR_NEAR_S2    = FILENAME_ECG_RR_S2.replace(EXT_TSV, EXT_NEAR)
+
+# "subj%d_ecg_inferred_nn.tsv"
+FILENAME_ECG_NN       = FILENAME_ECG.replace(EXT_TSV, EXT_INFERRED_NN)
+FILENAME_ECG_NN_S1    = FILENAME_ECG_S1.replace(EXT_TSV, EXT_INFERRED_NN)
+FILENAME_ECG_NN_S2    = FILENAME_ECG_S2.replace(EXT_TSV, EXT_INFERRED_NN)
+
+# "subj%d_ecg_inferred_nn_linear.tsv"
+FILENAME_ECG_NN_LIN      = FILENAME_ECG_NN.replace(EXT_TSV, EXT_LIN)
+FILENAME_ECG_NN_LIN_S1   = FILENAME_ECG_NN_S1.replace(EXT_TSV, EXT_LIN)
+FILENAME_ECG_NN_LIN_S2   = FILENAME_ECG_NN_S2.replace(EXT_TSV, EXT_LIN)
+
+# "subj%d_ecg_inferred_nn_nearest.tsv"
+FILENAME_ECG_NN_NEAR       = FILENAME_ECG_NN.replace(EXT_TSV, EXT_NEAR)
+FILENAME_ECG_NN_NEAR_S1    = FILENAME_ECG_NN_S1.replace(EXT_TSV, EXT_NEAR)
+FILENAME_ECG_NN_NEAR_S2    = FILENAME_ECG_NN_S2.replace(EXT_TSV, EXT_NEAR)
 
 # "subj%d_spk.tsv"
 FILENAME_RR_SPK       = "subj%d_rr_spk.tsv"

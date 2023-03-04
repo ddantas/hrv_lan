@@ -16,17 +16,17 @@ def spike(filename_input, filename_output, t0, duration):
   data = Data.Data.load_raw_data(filename_input)
 
   if (data.datatype != k.TYPE_RR):
-    print("Error: rr_spike.py: infer_spike_from_rr: File \"%s\" is not of type RR." % filename_input)
+    print("Error: rr_spike.py: save_spike_from_rr: File \"%s\" is not of type RR." % filename_input)
     print("Please load a file with RR data, i.e., columns [time, heart_rate, rr_interval].")
     raise ValueError("Invalid datatype in Data constructor")
     return
 
-  spike = infer_spike_from_rr(data, t0, duration)
+  spike = save_spike_from_rr(data, t0, duration)
   data_spike = Data.Data(k.TYPE_SPK)
   data_spike.time = spike
   data_spike.save_raw_data(filename_output, 1)
 
-def infer_spike_from_rr(data, t0, duration):
+def save_spike_from_rr(data, t0, duration):
 
   spike = []
 

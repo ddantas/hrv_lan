@@ -41,7 +41,7 @@ Call <code>idle</code> inside the virtual environment with
 
 Install the required libraries with
 
-> <code>(venv_polar)$ pip install opencv-python matplotlib scapy bleak pandas biosppy --default-timeput=1000</code>
+> <code>(venv_polar)$ pip install opencv-python matplotlib scapy bleak pandas biosppy pyhrv --default-timeout=1000</code>
 
 Deactivate the virtual environment with
 
