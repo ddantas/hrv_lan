@@ -20,7 +20,7 @@ report_poolr <- function(inputFile, outputFile, outputDir, df_pvals)
   prompt = 0
 
   ##########
-  arr_to_col = c("granger12h", "granger21h", "granger12f", "granger21f", "pval12")
+  arr_to_col = c("granger12h", "granger21h", "granger12f", "granger21f", "pval12", "resid_pval12")
   
   df_poolr = data.frame(label = numeric(0),
                          col = numeric(0),

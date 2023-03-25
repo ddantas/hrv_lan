@@ -113,8 +113,15 @@ get_correlationts <- function(df) {
 ################################################################################
 ## Funções
 
+rollapply_correlationts <- function(roll_df) {
+  #print(roll_df[,1])
+  #print(roll_df[,2])
+  result = correlationts(roll_df[,1], roll_df[,2], block=10, nboot=1000)
+  return (result)
+}
+
 ## Calcula a correlação entre duas séries temporais e o p-valor via block bootstrap
-correlationts <- function(x, y, block=10, nboot=500) {
+correlationts <- function(x, y, block=10, nboot=1000) {
     
     orig     <- cor(x, y, method="spearman")
     abs_orig <- abs(orig)

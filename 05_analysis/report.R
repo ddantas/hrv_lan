@@ -17,7 +17,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   source('plot_hist.R')
 
   DANTAS = FALSE
-  DANTAS_PDC = TRUE
+  DANTAS_PDC = FALSE
   DANTAS_CORR = TRUE
   DANTAS_REGR = TRUE
   FELIPE = FALSE
@@ -103,6 +103,26 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$label == 'NVNM'",                               "nvnm"),
     c("df$label == 'NVM'",                                "nvm"),
     c("df$label == 'Prelude'",                            "prelude"),
+    c("df$label == 'Interlude'",                          "interlude"),
+    c("df$label == 'SI' & df$block == 'block1'",          "si1"),
+    c("df$label == 'SI' & df$block == 'block3'",          "si2"),
+    c("df$label == 'Video' & df$block == 'block1'",       "video1"),
+    c("df$label == 'Video' & df$block == 'block3'",       "video2"),
+    c("df$label == 'NVNM' & df$block == 'block1'",        "nvnm1"),
+    c("df$label == 'NVNM' & df$block == 'block3'",        "nvnm2"),
+    c("df$label == 'NVNM' & df$block == 'block1' & df$time < 325", "nvnm11"),
+    c("df$label == 'NVNM' & df$block == 'block1' & df$time > 325", "nvnm12"),
+    c("df$label == 'NVNM' & df$block == 'block3' & df$time < 325", "nvnm21"),
+    c("df$label == 'NVNM' & df$block == 'block3' & df$time > 325", "nvnm22"),
+    c("df$label == 'NVM' & df$block == 'block1'",         "nvm1"),
+    c("df$label == 'NVM' & df$block == 'block3'",         "nvm2"),
+    c("df$label == 'Interlude' & df$time <= 150",         "interludeq1"),
+    c("df$label == 'Interlude' & df$time >  150 & df$time <= 300", "interludeq2"),
+    c("df$label == 'Interlude' & df$time >  300 & df$time <= 450", "interludeq3"),
+    c("df$label == 'Interlude' & df$time <= 300",         "interludeq4"),
+    c("df$label == 'Interlude' & df$time <= 300",         "interludem1"),
+    c("df$label == 'Interlude' & df$time >  300",         "interludem2")  )
+  cond_label = rbind(
     c("df$label == 'Interlude'",                          "interlude")  )
   cond_annot = rbind(
     c("df$annotator == 'dd'",                             "dd"),
@@ -163,6 +183,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       col2 = names(df)[cols[i + 1]]
       data1 = df[rows, col1, drop=FALSE]
       data2 = df[rows, col2, drop=FALSE]
+      df_imit = df[rows, c("IsImit", "IsSync"), drop=FALSE]
       str_title = paste("exp_", exp_label, "__", col1, "_vs_", col2, sep="")
       writeLines("...")
       writeLines(paste("<h3>", str_title, "</h3>", sep=""))
@@ -186,7 +207,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         folder = strsplit(exp_label, '_')[[1]][1]
         label = strsplit(exp_label, '_')[[1]][2]
         #cor_val = orig <- abs(cor(data1, data2, method="spearman"))
-        plot_tc_correlation(data1, data2, str_title, prompt, outputDir)
+        plot_tc_correlation(data1, data2, df_imit, str_title, prompt, outputDir)
         result = correlationts(data1[,1], data2[,1])
         df_corr = cbind(data1, data2, hand_pos_data1, hand_pos_data2)
         result2 = covar(df_corr);
@@ -233,7 +254,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         #formula2_data1 = "hr_subj1_linear ~ subj1_flow_l_cx + subj1_flow_l_cy + subj2_flow_l_cx + subj2_flow_l_cy"
         #glm2_data2 = glm(formula2_data1, df_regr, family=gaussian())
 
-        plot_tc_correlation(data.frame(residual1), data.frame(residual2), str_title, prompt, outputDir)
+        plot_tc_correlation(data.frame(residual1), data.frame(residual2), df_imit, str_title, prompt, outputDir)
 
         result = correlationts(residual1, residual2)
         writeLines(paste("Regarding correlation of residuals between Subject ", subj[1], " and Subject ", subj[2], ":\n", sep = ""))
@@ -292,7 +313,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   if (DANTAS_CORR)
   {
     writeLines(paste("<h3>Wilcoxon paired P-values for every combination of label</h3>", sep=""))
-    arr_label = c("iimitator1", "iimitator2", "si", "video", "nvm", "nvnm", "interlude", "prelude")
+    arr_label = c("iimitator1", "iimitator2", "si", "si1", "si2", "video", "nvm", "nvnm", "interlude", "interludem1", "interludem2", "interludeq1", "interludeq2", "interludeq3", "interludeq4", "prelude")
     writeLines(paste("<table border=1>", sep=""))
     writeLines(paste("  <tr>", sep=""))
     writeLines(paste("    <td></td>", sep=""))
@@ -333,7 +354,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     {
       outputFile     = paste("boxplot_report_", str_title, ".png", sep="")
       outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
-      png(outputFullname, width=640);
+      png(outputFullname, width=1280);
     }
     x = ggplot(df_pvals[df_pvals$to_col == "abscorr12",], aes(x=label, y=.data$val, color=label)) + geom_boxplot()
     grid::grid.draw(x)

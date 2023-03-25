@@ -6,6 +6,7 @@ library(nortest)
 #str_pad
 library(stringr)
 
+#ggplot
 library(ggplot2)
 
 source('report.R')
