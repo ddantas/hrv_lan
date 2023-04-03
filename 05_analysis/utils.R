@@ -1,3 +1,30 @@
+load_isimitvideo <- function(df){
+  df$IsImitVideo_subj1 = FALSE
+  df$IsImitVideo_subj2 = FALSE
+  df[df$annotator == "dd" & df$folder == "b002" & df$time %in% seq(19, 36),  "IsImitVideo_subj1"] = TRUE
+
+  df[df$annotator == "dd" & df$folder == "b022" & df$time %in% seq(13, 100), "IsImitVideo_subj1"] = TRUE
+
+  df[df$annotator == "dd" & df$folder == "b030" & df$time %in% seq(16, 100), "IsImitVideo_subj1"] = TRUE
+
+  df[df$annotator == "dd" & df$folder == "b034" & df$time %in% seq(14, 100), "IsImitVideo_subj1"] = TRUE
+  df[df$annotator == "dd" & df$folder == "b034" & df$time %in% seq(13, 100), "IsImitVideo_subj2"] = TRUE
+  df[df$annotator == "dd" & df$folder == "b036" & df$time %in% seq(12, 100), "IsImitVideo_subj1"] = TRUE
+  df[df$annotator == "dd" & df$folder == "b036" & df$time %in% seq(12, 100), "IsImitVideo_subj2"] = TRUE
+
+  df[df$annotator == "dd" & df$folder == "b038" & df$time %in% seq(13, 18),  "IsImitVideo_subj1"] = TRUE
+  df[df$annotator == "dd" & df$folder == "b038" & df$time %in% seq(13, 25),  "IsImitVideo_subj2"] = TRUE
+
+  df[df$annotator == "dd" & df$folder == "b042" & df$time %in% seq(13, 17),  "IsImitVideo_subj1"] = TRUE
+  df[df$annotator == "dd" & df$folder == "b042" & df$time %in% seq(12, 100), "IsImitVideo_subj2"] = TRUE
+
+  df[df$annotator == "dd" & df$folder == "b044" & df$time %in% seq(12, 100), "IsImitVideo_subj2"] = TRUE
+
+  print(df[df$IsImitVideo_subj1 == TRUE | df$IsImitVideo_subj2 == TRUE, c("folder", "time", "IsImitVideo_subj1", "IsImitVideo_subj2")])
+
+  return(df)
+}
+
 load_data <- function(filename){
 
   data = read.table(filename, header=TRUE, sep='	')

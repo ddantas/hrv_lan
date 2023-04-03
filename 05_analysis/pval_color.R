@@ -1,5 +1,7 @@
-pval_color <- function(pval, confidence=0.95)
+pval_color <- function(pval, confidence=0.95, format=HTML)
 {
+  source("const.R")
+
   significance = 1 - confidence
 
   if (is.na(pval) | pval < 0.0 | pval > 1.0)
@@ -27,9 +29,9 @@ pval_color <- function(pval, confidence=0.95)
     lo_r = 255
     lo_g = 30
     lo_b = 30
-    zr_r = 200
-    zr_g = 200
-    zr_b = 200
+    zr_r = 120
+    zr_g = 120
+    zr_b = 120
   }
 
   if (pval <= significance)
@@ -47,10 +49,21 @@ pval_color <- function(pval, confidence=0.95)
     g = lo_g
     b = lo_b
   }
-  result = paste("rgb(",
-                 as.integer( (pval_abs * r) + ((1-pval_abs) * zr_r) ), ",",
-                 as.integer( (pval_abs * g) + ((1-pval_abs) * zr_g) ), ",",
-                 as.integer( (pval_abs * b) + ((1-pval_abs) * zr_b) ), ")",
-                 sep = "")
+  if (format == HTML)
+  {
+    result = paste("rgb(",
+                   as.integer( (pval_abs * r) + ((1-pval_abs) * zr_r) ), ",",
+                   as.integer( (pval_abs * g) + ((1-pval_abs) * zr_g) ), ",",
+                   as.integer( (pval_abs * b) + ((1-pval_abs) * zr_b) ), ")",
+                   sep = "")
+  }
+  else
+  {
+    result = paste("[RGB]{",
+                   as.integer( (pval_abs * r) + ((1-pval_abs) * zr_r) ), ",",
+                   as.integer( (pval_abs * g) + ((1-pval_abs) * zr_g) ), ",",
+                   as.integer( (pval_abs * b) + ((1-pval_abs) * zr_b) ), "}",
+                   sep = "")
+  }
   return(result)
 }

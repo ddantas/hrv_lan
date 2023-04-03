@@ -122,8 +122,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     c("df$label == 'Interlude' & df$time <= 300",         "interludeq4"),
     c("df$label == 'Interlude' & df$time <= 300",         "interludem1"),
     c("df$label == 'Interlude' & df$time >  300",         "interludem2")  )
-  cond_label = rbind(
-    c("df$label == 'Interlude'",                          "interlude")  )
+  #cond_label = rbind(
+  #  c("df$label == 'Interlude'",                          "interlude")  )
   cond_annot = rbind(
     c("df$annotator == 'dd'",                             "dd"),
     c("df$annotator == 'jf'",                             "jf")  )
@@ -173,6 +173,15 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     n_sync = sum(IsSync*1)
     val_sync = n_sync / n_imit
 
+    IsImitVideo_subj1 = df[rows, "IsImitVideo_subj1", drop=FALSE]
+    IsImitVideo_subj1[is.na(IsImitVideo_subj1)] = FALSE
+    n_imitVideo_subj1 = sum(IsImitVideo_subj1*1)
+    val_imitVideo_subj1 = n_imitVideo_subj1 / nrow(IsImitVideo_subj1)
+    IsImitVideo_subj2 = df[rows, "IsImitVideo_subj2", drop=FALSE]
+    IsImitVideo_subj2[is.na(IsImitVideo_subj2)] = FALSE
+    n_imitVideo_subj2 = sum(IsImitVideo_subj2*1)
+    val_imitVideo_subj2 = n_imitVideo_subj2 / nrow(IsImitVideo_subj2)
+
     seq_cols = c(17) #nn_subj1_linear
     #for (i in 1) #hr_subj1_linear
     #for (i in c(1, 17))
@@ -214,18 +223,22 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         writeLines(paste("Regarding covariance between Subject ", subj[1], ", Subject ", subj[2], " and hand positions:\n", sep = ""))
         print(result2)
         writeLines(paste("Regarding correlation between Subject ", subj[1], " and Subject ", subj[2], ":\n", sep = ""))
-        writeLines(paste("Correlation      = ", result$coef))
-        writeLines(paste("Abs. Correlation = ", result$abs_coef))
-        writeLines(paste("P-value          = ", result$p.value))
-        writeLines(paste("IsImit           = ", val_imit))
-        writeLines(paste("IsSync           = ", val_sync))
-        writeLines(paste("Covar            = ", abs(result2$P[1, 2])))
-        writeLines(paste("T-value          = ", abs(result2$tvalue[1, 2])))
+        writeLines(paste("Correlation       = ", result$coef))
+        writeLines(paste("Abs. Correlation  = ", result$abs_coef))
+        writeLines(paste("P-value           = ", result$p.value))
+        writeLines(paste("IsImit            = ", val_imit))
+        writeLines(paste("IsSync            = ", val_sync))
+        writeLines(paste("IsImitVideo_subj1 = ", val_imitVideo_subj1))
+        writeLines(paste("IsImitVideo_subj2 = ", val_imitVideo_subj2))
+        writeLines(paste("Covar             = ", abs(result2$P[1, 2])))
+        writeLines(paste("T-value           = ", abs(result2$tvalue[1, 2])))
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr12", result$coef)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr12", result$abs_coef)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval12", result$p.value)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsImit", val_imit)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsSync", val_sync)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsImitVideo_subj1", val_imitVideo_subj1)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "IsImitVideo_subj2", val_imitVideo_subj2)
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "covar12", abs(result2$P[1, 2]))
         df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "tvalue12", abs(result2$tvalue[1, 2]))
       }
@@ -352,6 +365,10 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     outputSubdir = "plot_report"
     if (outputDir != "")
     {
+      dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+    }
+    if (outputDir != "")
+    {
       outputFile     = paste("boxplot_report_", str_title, ".png", sep="")
       outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
       png(outputFullname, width=1280);
@@ -380,6 +397,10 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     print_table_html(df_pvals_wide, corr_color)
     #for (i in seq(1, length(cols), by = 2))
     outputSubdir = "plot_hist"
+    if (outputDir != "")
+    {
+      dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+    }
     for (i in seq_cols)
     {
       col1 = names(df)[cols[i]]

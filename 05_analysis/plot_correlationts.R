@@ -3,6 +3,11 @@ plot_correlationts <- function(data1, data2, labels, exp, str_title, outputDir="
   outputFullname = ""
   outputFile     = ""
   outputSubdir   = "plot_correlationts"
+  if (outputDir != "")
+  {
+    dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+  }
+
   
   if (outputDir != "")
   {

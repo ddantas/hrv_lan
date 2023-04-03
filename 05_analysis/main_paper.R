@@ -10,15 +10,14 @@ library(stringr)
 library(ggplot2)
 
 source('const.R')
-source('report.R')
+source('report_paper.R')
 
-REPORT       = TRUE
+REPORT_PAPER = TRUE
 
 ###############################################################3
 df = load_data(filename_dataset)
 df = load_isimitvideo(df)
-df_stack = load_data(filename_dataset_stack)
-df_role = load_data(filename_dataset_role)
+df_pvals = load_data(filename_dataset_pvals)
 
 confidence = 0.95
 prompt     = 0
@@ -26,9 +25,10 @@ inputFile  = filename_dataset
 outputDir  = "saida"
 outputFile = "report.html"
 
-if (REPORT)
+outputFile     = "report_paper.html"
+if (REPORT_PAPER)
 {
-  report(inputFile, outputFile, outputDir, df, df_stack, df_role, confidence, prompt)
+  report_paper(inputFile, outputFile, outputDir, df, df_pvals, confidence, prompt)
 }
 
 ###############################################################3

@@ -1,7 +1,6 @@
 #ggplot
 library(ggplot2)
 
-
 if (FALSE)
 {
   ex01 = load_data("df_data_long_exp_ex02_interlude_dd__nn_subj1_ecg_linear_vs_nn_subj2_ecg_linear_residual.tsv")
@@ -24,10 +23,11 @@ if (FALSE)
 df_fujita_interlude_corr = load_data("fujita_interlude_corr.tsv")
 time = 26:576
 
-p <- ggplot() + xlim(0, 600) + xlab("Time") + ylim(0, 0.4) + ylab("Correlation")
+p <- ggplot() + xlim(0, 600) + xlab("Time") + ylim(-0.4, 0.4) + ylab("Correlation")
 for (i in 1:ncol(df_fujita_interlude_corr))
 {
   data = abs(df_fujita_interlude_corr[time,i])
+  data = df_fujita_interlude_corr[time,i]
   model = lm(data ~ time)
   intercept = model$coefficients[[1]]
   slope = model$coefficients[[2]]
@@ -49,7 +49,6 @@ window <- 10
 maxBoot <- 1000
 tmp <- array(0, ncol(data))
 coef.boot <- matrix(0, maxBoot, ncol(data))
-#time <- array(c(1:nrow(dados)), nrow(dados))
 
 for (boot in 1:maxBoot)
 {
@@ -66,21 +65,12 @@ for (boot in 1:maxBoot)
   print(boot)
 }
 
-p <- array(0, ncol(data))
+arr_pool <- array(0, ncol(data))
 for(i in 1:ncol(data)) {
   p[i] <- length(which(coef.boot[,i] < coef.orig[i])) / maxBoot
 }
 
-
 library(poolr)
-p[which(p == 0)] <-1/maxBoot
-fisher(p)
-stouffer(p)
-
-
-
-
-
-
-
-
+arr_pool[which(arr_pool == 0)] <-1/maxBoot
+fisher(arr_pool)
+stouffer(arr_pool)

@@ -5,6 +5,10 @@ plot_pdc <- function(data1, data2, hand_pos_data1, hand_pos_data2, str_title, ou
   outputFullname = ""
   outputFile     = ""
   outputSubdir   = "plot_pdc"
+  if (outputDir != "")
+  {
+    dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+  }
   
   if (outputDir != "")
   {

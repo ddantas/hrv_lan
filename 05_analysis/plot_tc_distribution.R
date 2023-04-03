@@ -2,10 +2,14 @@ plot_tc_distribution <- function(df_test, df_control, str_title, prompt=1, outpu
 {
   ## Reference:
   ## https://stackoverflow.com/questions/3541713/how-to-plot-two-histograms-together-in-r
-  
+
   outputFullname = ""
   outputFile     = ""
   outputSubdir   = "plot_tc_distribution"
+  if (outputDir != "")
+  {
+    dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+  }
 
   colnames(df_test) = "x"
   colnames(df_control) = "x"
@@ -59,7 +63,7 @@ plot_tc_distribution <- function(df_test, df_control, str_title, prompt=1, outpu
     outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
     png(outputFullname, width=640);
   }
-  x = ggplot(df_data, aes(x=Group, y=.data$x, color=Group)) + 
+  x = ggplot(df_data, aes(x=Group, y=.data$x, color=Group)) +
     geom_boxplot()
   grid::grid.draw(x)
   if (outputDir != "")
@@ -69,8 +73,6 @@ plot_tc_distribution <- function(df_test, df_control, str_title, prompt=1, outpu
     writeLines("")
     dev.off()
   }
-
-
 
   ##########
   if (outputDir != "")

@@ -5,6 +5,10 @@ plot_pdc_df <- function(df_pdc, str_title, outputDir="") {
   outputFullname = ""
   outputFile     = ""
   outputSubdir   = "plot_pdc"
+  if (outputDir != "")
+  {
+    dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+  }
   
   if (outputDir != "")
   {

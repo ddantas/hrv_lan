@@ -6,7 +6,10 @@ plot_tc_correlation <- function(df_test, df_control, df_imit, str_title, prompt=
   outputFullname = ""
   outputFile     = ""
   outputSubdir   = "plot_tc_correlation"
-  #dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+  if (outputDir != "")
+  {
+    dir.create(paste(outputDir, "/", outputSubdir, sep=""))
+  }
 
   time = seq(nrow(df_test))
   df_data <- cbind(time, df_test, df_control)
