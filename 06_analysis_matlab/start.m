@@ -1,0 +1,5 @@
+addpath("asymp_package_v2b/")
+addpath("asymp_package_v2b/routines/")
+addpath("asymp_package_v2b/supporting/")
+addpath("asymp_package_v2b/supporting/suplabel/")
+addpath("asymp_package_v2b/examples/extras/")
