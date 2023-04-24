@@ -28,8 +28,8 @@ colnames = df_full.Properties.VariableNames;
 
 % matriz singular:
 %list_folder = [4, 42, 44, 48];
-%list_folder = [2, 4, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 46];
-list_folder = [38];
+list_folder = [2, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 46];
+list_folder = [26, 28];
 for id_folder = list_folder
   val_folder = sprintf("b03d", id_folder);
   if (mod(id_folder, 4) == 2)
@@ -49,12 +49,12 @@ for id_folder = list_folder
     hands = df_full(rows, {'subj1_flow_l_cx', 'subj1_flow_l_cy', 'subj1_flow_r_cx', 'subj1_flow_r_cy', ...
                            'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'}  )
     
-    model1 = fitlm(horzcat(hands, nn1));
-    model2 = fitlm(horzcat(hands, nn2));
-    nn1_resid = model1.Residuals(:,'Raw');
-    nn2_resid = model2.Residuals(:,'Raw');
-    nn1_resid.Properties.VariableNames{1} = 'nn1_resid'
-    nn2_resid.Properties.VariableNames{1} = 'nn2_resid'
+    %model1 = fitlm(horzcat(hands, nn1));
+    %model2 = fitlm(horzcat(hands, nn2));
+    %nn1_resid = model1.Residuals(:,'Raw');
+    %nn2_resid = model2.Residuals(:,'Raw');
+    %nn1_resid.Properties.VariableNames{1} = 'nn1_resid'
+    %nn2_resid.Properties.VariableNames{1} = 'nn2_resid'
 
     %rows = intervals{id_label}
     %compare_flow(df, s2, rows, str_title)
@@ -62,8 +62,8 @@ for id_folder = list_folder
     %u = [s1{:,["flow_l_cx","flow_l_cy","flow_r_cx","flow_r_cy"]} s2{:,["flow_l_cx","flow_l_cy","flow_r_cx","flow_r_cy"]}]
     %u = [df{rows,[1:2,7:8]} s2{rows,[1:2,7:8]}]
 
-    arr = table2array(horzcat(nn1_resid, nn2_resid, hands))
-    chLabels = {'nn1\_resid';'nn2\_resid';'s1\_flow\_l\_cx';'s1\_flow\_l\_cy';'s1\_flow\_r\_cx';'s1\_flow\_r\_cy';'s2\_flow\_l\_cx';'s2\_flow\_l\_cy';'s2\_flow\_r\_cx';'s2\_flow\_r\_cy'};
+    arr = table2array(horzcat(nn1, nn2, hands))
+    chLabels = {'nn1';'nn2';'s1\_flow\_l\_cx';'s1\_flow\_l\_cy';'s1\_flow\_r\_cx';'s1\_flow\_r\_cy';'s2\_flow\_l\_cx';'s2\_flow\_l\_cy';'s2\_flow\_r\_cx';'s2\_flow\_r\_cy'};
     pdc(arr, str_label, fr, chLabels)
 
     %compare_cpsd(u, str_title)

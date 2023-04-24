@@ -38,39 +38,57 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
   prompt = 0
 
   ##########
-  FIG1 = FALSE
+  FIG1 = TRUE
   FIG12 = TRUE
   FIG3 = TRUE
   FIG4 = TRUE
 
   text_size = 20
+  THEME = theme_bw()
 
   outputSubdir = "plot_paper2"
   if (outputDir != "")
   {
     dir.create(paste(outputDir, "/", outputSubdir, sep=""))
   }
+
+
+  ##########
+  arr_pval = c(0.15939771623433,  #video1
+                 0.163697438246427, #nvm1
+                 0.325250835004095, #nvnm11
+                 0.005096150670058, #si1
+                 0.253062542639005, #nvnm12
+                 0.044655606679524, #ii1
+                 0.029558487136295, #video2
+                 0.227730096674434, #nvm2
+                 0.858063531029954, #nvnm21
+                 0.002378113900150, #si2
+                 0.000727984292684, #nvnm21
+                 1.16018083495e-06  #ii2
+                 )
+
   ##########
   if (FIG1)
   {
     df_pvals$Step = ""
-    df_pvals[df_pvals$label == "video1", "Step"] = "Video 1"
-    df_pvals[df_pvals$label == "video2", "Step"] = "Video 2"
-    df_pvals[df_pvals$label == "nvm1", "Step"] = "NVM 1"
-    df_pvals[df_pvals$label == "nvm2", "Step"] = "NVM 2"
-    df_pvals[df_pvals$label == "nvnm11", "Step"] = "NVNM 1.1"
-    df_pvals[df_pvals$label == "nvnm12", "Step"] = "NVNM 1.2"
-    df_pvals[df_pvals$label == "nvnm21", "Step"] = "NVNM 2.1"
-    df_pvals[df_pvals$label == "nvnm22", "Step"] = "NVNM 2.2"
-    df_pvals[df_pvals$label == "si1", "Step"] = "S.Imit. 1"
-    df_pvals[df_pvals$label == "si2", "Step"] = "S.Imit. 2"
-    df_pvals[df_pvals$label == "iimitator1", "Step"] = "I.Imit. 1"
-    df_pvals[df_pvals$label == "iimitator2", "Step"] = "I.Imit. 2"
+    df_pvals[df_pvals$label == "video1", "Step"] = "Video"
+    df_pvals[df_pvals$label == "video2", "Step"] = "Video"
+    df_pvals[df_pvals$label == "nvm1", "Step"] = "NVM"
+    df_pvals[df_pvals$label == "nvm2", "Step"] = "NVM"
+    df_pvals[df_pvals$label == "nvnm11", "Step"] = "NVNM 1"
+    df_pvals[df_pvals$label == "nvnm12", "Step"] = "NVNM 2"
+    df_pvals[df_pvals$label == "nvnm21", "Step"] = "NVNM 1"
+    df_pvals[df_pvals$label == "nvnm22", "Step"] = "NVNM 2"
+    df_pvals[df_pvals$label == "si1", "Step"] = "S.Imit."
+    df_pvals[df_pvals$label == "si2", "Step"] = "S.Imit."
+    df_pvals[df_pvals$label == "iimitator1", "Step"] = "I.Imit."
+    df_pvals[df_pvals$label == "iimitator2", "Step"] = "I.Imit."
     ##########
     labels_fig1 = c("video1", "nvm1", "nvnm11", "si1", "nvnm12", "iimitator1")
     labels_fig2 = c("video2", "nvm2", "nvnm21", "si2", "nvnm22", "iimitator2")
-    levels_fig1 = c("Video 1", "NVM 1", "NVNM 1.1", "S.Imit. 1", "NVNM 1.2", "I.Imit. 1")
-    levels_fig2 = c("Video 2", "NVM 2", "NVNM 2.1", "S.Imit. 2", "NVNM 2.2", "I.Imit. 2")
+    levels_fig1 = c("Video", "NVM", "NVNM 1", "S.Imit.", "NVNM 2", "I.Imit.")
+    levels_fig2 = c("Video", "NVM", "NVNM 1", "S.Imit.", "NVNM 2", "I.Imit.")
 
     ##########
     df_fig = df_pvals[df_pvals$to_col == "abscorr12" & df_pvals$label %in% labels_fig1,]
@@ -111,9 +129,14 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
       outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
       png(outputFullname, width=640);
     }
-    p = ggplot(df_fig, aes(x=Step, y=.data$val, color=Step)) +
-      theme(legend.position="none") +
-      geom_boxplot() + ylab("Correlation") + xlab("Step") + theme(text = element_text(size = text_size))
+    p = ggplot(df_fig, aes(x=Step, y=val)) + THEME
+    p = p + theme(legend.position="none") +
+      geom_boxplot(fill="gray", alpha=1.0) + ylab("Correlation") + xlab("Capture Block 1") + theme(text = element_text(size = text_size))
+    for (i in seq(length(arr_pval)/2))
+    {
+      str_pval = pval_star(arr_pval[i])
+      p = p + geom_text(x=i, y=0.4, label=str_pval, size=text_size/2, color="azure4")
+    }
     grid::grid.draw(p)
     if (outputDir != "")
     {
@@ -162,9 +185,14 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
       outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
       png(outputFullname, width=640);
     }
-    p = ggplot(df_fig, aes(x=Step, y=.data$val, color=Step)) +
-      theme(legend.position="none") +
-      geom_boxplot() + ylab("Correlation") + xlab("Step") + theme(text = element_text(size = text_size))
+    p = ggplot(df_fig, aes(x=Step, y=val)) + THEME
+    p = p + theme(legend.position="none") +
+      geom_boxplot(fill="gray", alpha=1.0) + ylab("Correlation") + xlab("Capture Block 2") + theme(text = element_text(size = text_size))
+    for (i in seq(length(arr_pval)/2))
+    {
+      str_pval = pval_star(arr_pval[i + length(arr_pval)/2])
+      p = p + geom_text(x=i, y=0.4, label=str_pval, size=text_size/2, color="azure4")
+    }
     grid::grid.draw(p)
     if (outputDir != "")
     {
@@ -198,20 +226,6 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
     levels_fig12 = c("Video 1", "NVM 1", "NVNM 1.1", "S.Imit. 1", "NVNM 1.2", "I.Imit. 1",
                      "Video 2", "NVM 2", "NVNM 2.1", "S.Imit. 2", "NVNM 2.2", "I.Imit. 2")
 
-    arr_pval = c(0.15939771623433,  #video1
-                 0.163697438246427, #nvm1
-                 0.325250835004095, #nvnm11
-                 0.005096150670058, #si1
-                 0.253062542639005, #nvnm12
-                 0.044655606679524, #ii1
-                 0.029558487136295, #video2
-                 0.227730096674434, #nvm2
-                 0.858063531029954, #nvnm21
-                 0.002378113900150, #si2
-                 0.000727984292684, #nvnm21
-                 1.16018083495e-06  #ii2
-                 )
-    
     ##########
     df_fig = df_pvals[df_pvals$to_col == "resid_abscorr12" & df_pvals$label %in% labels_fig12,]
     df_fig$Step = as.factor(df_fig$Step)
@@ -262,7 +276,7 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
       outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
       png(outputFullname, width=640);
     }
-    
+
     df_fig3[df_fig3$label == "interludem1", "Step"] = "Interlude 1st half"
     df_fig3[df_fig3$label == "interludem2", "Step"] = "Interlude 2nd half"
     p = ggplot(df_fig3, aes(x=Step, y=val, color=Experiment, group=Experiment)) +
@@ -276,6 +290,7 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
       writeLines("")
       dev.off()
     }
+    ##########
     ##########
     df_fig3 = df_pvals[df_pvals$to_col == "resid_abscorr12" & df_pvals$label %in% labels_fig3,]
     df_fig3$Experiment = substring(df_fig3$folder, 3, 4)
@@ -289,12 +304,12 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
       outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
       png(outputFullname, width=640);
     }
-    
+
     df_fig3[df_fig3$label == "interludem1", "Step"] = "Interlude 1st half"
     df_fig3[df_fig3$label == "interludem2", "Step"] = "Interlude 2nd half"
-    p = ggplot(df_fig3, aes(x=Step, y=val, color=Experiment, group=Experiment)) +
-      theme(legend.position="none") +
-      geom_point() + geom_line() + geom_path() + ylab("Correlation") + xlab("Step") + theme(text = element_text(size = text_size))
+    p = ggplot(df_fig3, aes(x=Step, y=val, group=Experiment)) + THEME
+    p = p + theme(legend.position="none") +
+      geom_point() + geom_line() + geom_path() + ylab("Correlation") + xlab("") + theme(text = element_text(size = text_size))
     grid::grid.draw(p)
     if (outputDir != "")
     {
@@ -303,6 +318,46 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
       writeLines("")
       dev.off()
     }
+    ##########
+    str1 = "interludem1"
+    str2 = "interludem2"
+    x = df_fig3[df_fig3$label == str1, "val", drop=FALSE]
+    y = df_fig3[df_fig3$label == str2, "val", drop=FALSE]
+    report_tc_test(x, y, str_title, confidence=0.95, str1, str2)
+    ##########
+    ##########
+    labels_fig3ii = c("iimitator1", "iimitator2")
+    df_fig3 = df_pvals[df_pvals$to_col == "resid_abscorr12" & df_pvals$label %in% labels_fig3ii,]
+    df_fig3$Experiment = substring(df_fig3$folder, 3, 4)
+    ##########
+    str_title = "lineplot_fig3ii_residual"
+    writeLines("...")
+    writeLines(paste("<h3>", str_title, "</h3>", sep=""))
+    if (outputDir != "")
+    {
+      outputFile     = paste("plot_paper_", str_title, ".png", sep="")
+      outputFullname = paste(outputDir, "/", outputSubdir, "/", outputFile, sep="")
+      png(outputFullname, width=640);
+    }
+
+    df_fig3[df_fig3$label == "iimitator1", "Step"] = "Induced Imit. 1"
+    df_fig3[df_fig3$label == "iimitator2", "Step"] = "Induced Imit. 2"
+    p = ggplot(df_fig3, aes(x=Step, y=val, group=Experiment)) + THEME
+    p = p + theme(legend.position="none") +
+      geom_point() + geom_line() + geom_path() + ylab("Correlation") + xlab("") + theme(text = element_text(size = text_size))
+    grid::grid.draw(p)
+    if (outputDir != "")
+    {
+      writeLines(paste("<td><img src='", outputSubdir, "/", outputFile, "'></td>", sep=""))
+      writeLines("")
+      writeLines("")
+      dev.off()
+    }
+    str1 = "iimitator1"
+    str2 = "iimitator2"
+    x = df_fig3[df_fig3$label == str1, "val", drop=FALSE]
+    y = df_fig3[df_fig3$label == str2, "val", drop=FALSE]
+    report_tc_test(x, y, str_title, confidence=0.95, str1, str2)
   }
 
   ##########

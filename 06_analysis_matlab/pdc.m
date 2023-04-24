@@ -182,7 +182,8 @@ flgColor = 1; % Choosing background color for exposing y-axis scale
 %        flgColor - 0: white background;
 %                   1: white [.1 1], light-blue [.01 .1], purple [0 .01]
 %                   2: white [.1 1], light-gray [.01 .1], gray [0 .01]
-flgScale = [1 2 3];     
+flgScale = [1 2 3];
+flgScale = [3];
 %        flgScale - 1: [0 1] / {if max(PDC/DTF) > 1}:[0 max(PDC/DTF)]
 %                   2: [0 {if max(PDC/DTF) > 1}:max(PDC/DTF)]/[0 1]/[0 .1]/[0 .01]
 %                                     based on flgMax(PDC/DTF/Threshold/CI/all)
