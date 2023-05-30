@@ -29,7 +29,7 @@
 % param_title: string with label to appear in plots
 % fs: sampling frequency
 % chlabels: one label for each channel
-function pdc(u, param_title, fs, chLabels)
+function [Tr_gct, pValue_gct, Tr_igct, pValue_igct] = pdc(u, param_title, fs, chLabels)
 
 %===========================#
 % Times series for analysis /

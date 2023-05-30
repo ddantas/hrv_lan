@@ -1,22 +1,12 @@
-report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confidence=0.95, prompt=1)
+report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals, df_pdc_pvals, confidence=0.95, prompt=1)
 {
-  #source('print_separator.R')
-  #source('generate_summary.R')
-  #source('plot_tc_distribution.R')
-  #source('plot_tc_correlation.R')
-  #source('report_tc_test.R')
-  #source('plot_correlationts.R')
-  #source('report_pdc.R')
-  #source('report_pdc_new.R')
-  #source('plot_pdc_df.R')
-  #source('plot_pdc.R')
-  #source('print_table_html.R')
-  #source('pval_color.R')
-  #source('corr_color.R')
-  #source('script.R')
-  #source('plot_hist.R')
-  
+  source('print_separator.R')
+  source('same_mean_test.R')
+  source('report_tc_test.R')
+  source('pval_color.R')
   source('pval_star.R')
+  source('print_table_html.R')
+  source('print_table_latex.R')
   
   outputFullname = paste(outputDir, "/", outputFile, sep="")
   sink(file=NULL)
@@ -399,6 +389,30 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals,confide
       dev.off()
     }
   }
+  ##########
+
+  df_poolr = data.frame(label = numeric(0),
+                       fisher = numeric(0),
+                       stoufer = numeric(0))
+
+
+  colnames_poolr = colnames(df_pdc_pvals)
+  for (i in seq(ncol(df_pdc_pvals)))
+  {
+    pool = df_pdc_pvals[, i]
+
+    df_poolr[i, "label"] = colnames_poolr[i]
+
+    poolr_f = fisher(pool, batchsize = 10000)
+    print(poolr_f)
+    df_poolr[i, "fisher"] = poolr_f$p
+
+    poolr_s = stouffer(pool, batchsize = 10000)
+    print(poolr_s)
+    df_poolr[i, "stoufer"] = poolr_s$p
+  }
+  print_table_html(df_poolr, pval_color)
+  print_table_latex(df_poolr, pval_color, col_list=c(1,2,3))
 
   sink(file=NULL)
 }
