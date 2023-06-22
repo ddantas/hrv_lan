@@ -29,7 +29,7 @@ colnames = df_full.Properties.VariableNames;
 % matriz singular:
 %list_folder = [4, 42, 44, 48];
 list_folder = [2, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 46];
-%list_folder = [38, 40, 46];
+list_folder = [2];
 list_nh_count = [];
 list_nh_pvals = {};
 list_nh_tr    = {};
@@ -37,7 +37,7 @@ list_hn_count = [];
 list_hn_pvals = {};
 list_hn_tr    = {};
 for id_folder = list_folder
-  val_folder = sprintf("b03d", id_folder);
+  val_folder = sprintf("b%03d", id_folder);
   if (mod(id_folder, 4) == 2)
     labels = labels1;
   else

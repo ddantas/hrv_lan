@@ -1,5 +1,29 @@
 report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals, df_pdc_pvals, confidence=0.95, prompt=1)
 {
+
+make_table_pool_pvals <- function(df_pdc_pvals)
+{
+  colnames_poolr = colnames(df_pdc_pvals)
+  for (i in seq(ncol(df_pdc_pvals)))
+  {
+    pool = df_pdc_pvals[, i]
+
+    df_poolr[i, "label"] = colnames_poolr[i]
+
+    poolr_f = fisher(pool, batchsize = 10000)
+    print(poolr_f)
+    df_poolr[i, "fisher"] = poolr_f$p
+
+    poolr_s = stouffer(pool, batchsize = 10000)
+    print(poolr_s)
+    df_poolr[i, "stoufer"] = poolr_s$p
+  }
+  print_table_html(df_poolr, pval_color)
+  print_table_latex(df_poolr, pval_color, col_list=c(1,2,3))
+}
+
+
+
   source('print_separator.R')
   source('same_mean_test.R')
   source('report_tc_test.R')
@@ -390,7 +414,6 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals, df_pdc
     }
   }
   ##########
-
   df_poolr = data.frame(label = numeric(0),
                        fisher = numeric(0),
                        stoufer = numeric(0))
@@ -414,5 +437,30 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals, df_pdc
   print_table_html(df_poolr, pval_color)
   print_table_latex(df_poolr, pval_color, col_list=c(1,2,3))
 
+  ##########
+  print_separator()
+
+  for (i in seq(0, 2))
+  {
+    if (i == 0)
+      str_subject = ""
+    else
+      str_subject = paste0(i)
+    end
+
+    writeLines(paste0("<h3>NVM", str_subject, "</h3>"))
+    df_pca = load_data(paste0("dataset_pdc_pvals_NVM", str_subject, ".tsv"))
+    make_table_pool_pvals(df_pca)
+
+    writeLines(paste("<h3>SI", str_subject, "</h3>", sep=""))
+    df_pca = load_data(paste0("dataset_pdc_pvals_SI", str_subject, ".tsv"))
+    make_table_pool_pvals(df_pca)
+
+    writeLines(paste("<h3>IImitator", str_subject, "</h3>", sep=""))
+    df_pca = load_data(paste0("dataset_pdc_pvals_IImitator", str_subject, ".tsv"))
+    make_table_pool_pvals(df_pca)
+  }
+
+  ##########
   sink(file=NULL)
 }
