@@ -1,4 +1,7 @@
 
+IS_RANKED = true;
+maxIP = 3;
+
 fr = 1;
 
 
@@ -28,12 +31,13 @@ colnames = df_full.Properties.VariableNames;
 
 % id_subject = 1 or 2: Separate subjects in two independent groups
 % id_subject = 0:      Merge both subjects
-id_subject = 0
+id_subject = 2;
 
 % matriz singular:
 %list_folder = [4, 42, 44, 48];
+list_folder = [2, 4, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48];
 %list_folder = [2, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 46];
-list_folder = [2];
+%list_folder = [2];
 %for id_label = [2, 4, 5]
 for id_label = 5:5
   n_folders = 0
@@ -89,18 +93,24 @@ for id_label = 5:5
     hands2_arrb = hands2_arr * coeff2;
     hands1 = array2table(hands1_arrb(:,1), 'VariableNames', {'hand1'});
     hands2 = array2table(hands2_arrb(:,1), 'VariableNames', {'hand2'});
-
+    if (IS_RANKED)
+      [~,~,nn1] = unique(nn1);
+      [~,~,nn2] = unique(nn2);
+      [~,~,hands1] = unique(hands1);
+      [~,~,hands2] = unique(hands2);
+      nn1    = array2table(nn1);
+      nn2    = array2table(nn2);
+      hands1 = array2table(hands1);
+      hands2 = array2table(hands2);
+    end
     arr = table2array(horzcat(nn1, nn2, hands1, hands2));
     chLabels = {'nn1';'nn2';'hand1';'hand2'};
 
-    [Tr_gct, pValue_gct, Tr_igct, pValue_igct] = pdc(arr, str_label, fr, chLabels);
+    [Tr_gct, pValue_gct, Tr_igct, pValue_igct] = pdc(arr, str_label, fr, chLabels, maxIP);
 
-    list_nh_count(end+1) = sum(sum(Tr_gct(3:4, 1:2)));
-    list_nh_pvals{end+1} = pValue_gct(3:4, 1:2);
-    list_nh_tr{end+1}    = Tr_gct(3:4, 1:2);
-    list_hn_count(end+1) = sum(sum(Tr_gct(1:2, 3:4)));
-    list_hn_pvals{end+1} = pValue_gct(1:2, 3:4);
-    list_hn_tr{end+1}    = Tr_gct(1:2, 3:4);
+    list_nh_count(end+1) = sum(sum(Tr_gct(1:4, 1:4)));
+    list_nh_pvals{end+1} = pValue_gct(1:4, 1:4);
+    list_nh_tr{end+1}    = Tr_gct(1:4, 1:4);
 
     %compare_cpsd(u, str_title)
     %compare_cpsd2(u, str_title)
@@ -110,25 +120,18 @@ for id_label = 5:5
   list_nh_pvals{1}
 
   array_columns = {}
-  array_data = zeros(n_folders, 8)
+  array_data = zeros(n_folders, 12)
   j = 0
-  for j_n = 1:2
-    for j_h = 3:4
+  for j_n = 1:4
+    for j_h = 1:4
+      if (j_n == j_h)
+        continue
+      end
       j = j + 1;
       array_columns{end + 1} = strcat(chLabels{j_n}, '\_to\_', chLabels{j_h});
       array_columns{end} = strrep(array_columns{end}, '\_', '_');
       for i = 1:n_folders
-        array_data(i, j) = list_nh_pvals{i}(j_h-2, j_n);
-      end
-    end
-  end
-  for j_n = 1:2
-    for j_h = 3:4
-      j = j + 1;
-      array_columns{end + 1} = strcat(chLabels{j_h}, '\_to\_', chLabels{j_n});
-      array_columns{end} = strrep(array_columns{end}, '\_', '_');
-      for i = 1:n_folders
-        array_data(i, j) = list_hn_pvals{i}(j_n, j_h-2);
+        array_data(i, j) = list_nh_pvals{i}(j_h, j_n);
       end
     end
   end

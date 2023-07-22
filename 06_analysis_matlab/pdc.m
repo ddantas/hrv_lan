@@ -29,7 +29,7 @@
 % param_title: string with label to appear in plots
 % fs: sampling frequency
 % chlabels: one label for each channel
-function [Tr_gct, pValue_gct, Tr_igct, pValue_igct] = pdc(u, param_title, fs, chLabels)
+function [Tr_gct, pValue_gct, Tr_igct, pValue_igct] = pdc(u, param_title, fs, chLabels, maxIP)
 
 %===========================#
 % Times series for analysis /
@@ -128,7 +128,7 @@ metric = 'euc';
 %                 'diag' - diagonal      -> gPDC;
 %                 'info' - informational -> iPDC;
 
-maxIP = 30; % maxIP - externally defined maximum IP %<***>
+%maxIP = 2; % maxIP - externally defined maximum IP %<***>
 
 %===========================#
 %    MAR algorithm          /
@@ -323,6 +323,10 @@ disp(['Number of channels = ' int2str(nChannels) ' with ' ...
 % Power spectra and coherence calculation
 c.SS = ss_alg(A, pf, nFreqs);
 c.coh = coh_alg(c.SS);
+
+disp("CCCCCCCCCC" )
+disp(c)
+disp("CCCCCCCCCC" )
 
 % Statistically significant PDC on frequency scale
 if alpha ~= 0,
