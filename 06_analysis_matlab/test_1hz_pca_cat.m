@@ -37,7 +37,7 @@ list_folder = [2, 10, 14, 18, 22, 26, 30, 34, 38, 42, 46];
 delta_folder = 2
 %list_folder = [2];
 %for id_label = [2, 3, 4, 5]
-for id_label = 5:5
+for id_label = 3:3
   n_folders = 0
   close all
   list_pvals = {};
@@ -62,7 +62,7 @@ for id_label = 5:5
     hands2A_arr = table2array(  df_full( rowsA, {'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'} )  );
     % In the Induced Imitation blocks, compare imitator versus model
     if (id_label == 5)
-      if (mod(id_folder, 4) == 3)
+      if (mod(id_folderA, 4) == 3)
         aux         = nn1A;
         nn1A        = nn2A;
         nn2A        = aux;
@@ -84,7 +84,7 @@ for id_label = 5:5
     hands2B_arr = table2array(  df_full( rowsB, {'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'} )  );
     % In the Induced Imitation blocks, compare imitator versus model
     if (id_label == 5)
-      if (mod(id_folder, 4) == 3)
+      if (mod(id_folderA, 4) == 3)
         aux         = nn1B;
         nn1B        = nn2B;
         nn2B        = aux;
@@ -118,7 +118,7 @@ for id_label = 5:5
     arr = table2array(horzcat(nn1, nn2, hands1, hands2));
     chLabels = {'nn1';'nn2';'hand1';'hand2'};
 
-    [Tr_gct, pValue_gct, Tr_igct, pValue_igct] = pdc(arr, str_label, fr, chLabels, maxIP);
+    [Tr_gct, pValue_gct, Tr_igct, pValue_igct, c] = pdc(arr, str_label, fr, chLabels, maxIP);
 
     list_pvals{end+1} = pValue_gct(1:4, 1:4);
 
