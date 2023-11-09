@@ -24,6 +24,10 @@ report_poolr <- function(inputFile, outputFile, outputDir, df_pvals, summary=0)
   prompt = 0
 
   ##########
+  df_pvals = load_data(inputFile)
+  METHOD1 = TRUE
+
+  ##########
   if (summary)
   {
     df_pvals$label_alt = ""
@@ -82,6 +86,48 @@ report_poolr <- function(inputFile, outputFile, outputDir, df_pvals, summary=0)
 
   ##########
   arr_to_col = c("granger12h", "granger21h", "granger12f", "granger21f", "pval12", "resid_pval12")
+  if (FALSE)
+  {
+    arr_to_col = c("abscorr_F1handAheartA", "corr_F1handAheartA", "pval_F1handAheartA",
+                   "abscorr_F1handBheartB", "corr_F1handBheartB", "pval_F1handBheartB",
+                   "abscorr_F2handAheartB", "corr_F2handAheartB", "pval_F2handAheartB",
+                   "abscorr_F2handBheartA", "corr_F2handBheartA", "pval_F2handBheartA",
+                   "abscorr_F3handAhandB",  "corr_F3handAhandB",  "pval_F3handAhandB",
+                   "abscorr_F4heartAheartB", "corr_F4heartAheartB", "pval_F4heartAheartB")
+  }
+  else
+  {
+    print(df_pvals)
+    df_pvals$to_col <- as.character(df_pvals$to_col)
+
+    df_pvals[df_pvals$to_col == "abscorr_F1handAheartA", "to_col"] = "abscorr_F1handheart_same"
+    df_pvals[df_pvals$to_col == "corr_F1handAheartA", "to_col"] = "corr_F1handheart_same"
+    df_pvals[df_pvals$to_col == "pval_F1handAheartA", "to_col"] = "pval_F1handheart_same"
+    df_pvals[df_pvals$to_col == "abscorr_F1handBheartB", "to_col"] = "abscorr_F1handheart_same"
+    df_pvals[df_pvals$to_col == "corr_F1handBheartB", "to_col"] = "corr_F1handheart_same"
+    df_pvals[df_pvals$to_col == "pval_F1handBheartB", "to_col"] = "pval_F1handheart_same"
+
+    df_pvals[df_pvals$to_col == "abscorr_F2handAheartB", "to_col"] = "abscorr_F2handheart_diff"
+    df_pvals[df_pvals$to_col == "corr_F2handAheartB", "to_col"] = "corr_F2handheart_diff"
+    df_pvals[df_pvals$to_col == "pval_F2handAheartB", "to_col"] = "pval_F2handheart_diff"
+    df_pvals[df_pvals$to_col == "abscorr_F2handBheartA", "to_col"] = "abscorr_F2handheart_diff"
+    df_pvals[df_pvals$to_col == "corr_F2handBheartA", "to_col"] = "corr_F2handheart_diff"
+    df_pvals[df_pvals$to_col == "pval_F2handBheartA", "to_col"] = "pval_F2handheart_diff"
+
+    df_pvals$to_col <- as.factor(df_pvals$to_col)
+
+    arr_to_col = c("abscorr_F1handheart_same", "corr_F1handheart_same", "pval_F1handheart_same",
+                   "abscorr_F2handheart_diff", "corr_F2handheart_diff", "pval_F2handheart_diff",
+                   "abscorr_F3handAhandB",  "corr_F3handAhandB",  "pval_F3handAhandB",
+                   "abscorr_F4heartAheartB", "corr_F4heartAheartB", "pval_F4heartAheartB")
+
+    print(df_pvals)
+  }
+  if (METHOD1)
+  {
+    arr_to_col = c("corr12", "abscorr12", "pval12")
+  }
+
   if (summary)
   {
     #arr_to_col = c("resid_pval12")
@@ -140,6 +186,8 @@ report_poolr <- function(inputFile, outputFile, outputDir, df_pvals, summary=0)
         df_poolr[nrow(df_poolr) + 1,] = list(i_label, i_col, i_to_col, "stouffer", poolr_s$p)
       }
     }
+    df_save = reshape(df_pvals[df_pvals$to_col == i_to_col, ], v.names="val", timevar="label", idvar=c("folder", "col", "to_col"), direction="wide")
+    save_data(df_save, paste0("data_fujita_poolr/dataset_fujita_", i_to_col, ".tsv"))
   }
 
   save_data(df_poolr, "dataset_poolr.tsv")

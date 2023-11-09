@@ -3,6 +3,9 @@ report_paper2 <- function(inputFile, outputFile, outputDir, df, df_pvals, df_pdc
 
 make_table_pool_pvals <- function(df_pdc_pvals)
 {
+  df_poolr = data.frame(label = numeric(0),
+                       fisher = numeric(0),
+                       stoufer = numeric(0))
   colnames_poolr = colnames(df_pdc_pvals)
   for (i in seq(ncol(df_pdc_pvals)))
   {
@@ -20,8 +23,8 @@ make_table_pool_pvals <- function(df_pdc_pvals)
   }
   print_table_html(df_poolr, pval_color)
   print_table_latex(df_poolr, pval_color, col_list=c(1,2,3))
+  return(df_poolr)
 }
-
 
 
   source('print_separator.R')
@@ -54,8 +57,10 @@ make_table_pool_pvals <- function(df_pdc_pvals)
   ##########
   FIG1 = TRUE
   FIG12 = TRUE
-  FIG3 = TRUE
+  FIG3 = FALSE
   FIG4 = TRUE
+  METHOD1 = TRUE
+  METHOD2 = FALSE
 
   text_size = 20
   THEME = theme_bw()
@@ -414,51 +419,79 @@ make_table_pool_pvals <- function(df_pdc_pvals)
     }
   }
   ##########
-  df_poolr = data.frame(label = numeric(0),
-                       fisher = numeric(0),
-                       stoufer = numeric(0))
-
-
-  colnames_poolr = colnames(df_pdc_pvals)
-  for (i in seq(ncol(df_pdc_pvals)))
+  if (METHOD1)
   {
-    pool = df_pdc_pvals[, i]
+    df_poolr = data.frame(label = numeric(0),
+                         fisher = numeric(0),
+                         stoufer = numeric(0))
 
-    df_poolr[i, "label"] = colnames_poolr[i]
+    colnames_poolr = colnames(df_pdc_pvals)
+    for (i in seq(ncol(df_pdc_pvals)))
+    {
+      pool = df_pdc_pvals[, i]
 
-    poolr_f = fisher(pool, batchsize = 10000)
-    print(poolr_f)
-    df_poolr[i, "fisher"] = poolr_f$p
+      df_poolr[i, "label"] = colnames_poolr[i]
 
-    poolr_s = stouffer(pool, batchsize = 10000)
-    print(poolr_s)
-    df_poolr[i, "stoufer"] = poolr_s$p
+      poolr_f = fisher(pool, batchsize = 10000)
+      print(poolr_f)
+      df_poolr[i, "fisher"] = poolr_f$p
+
+      poolr_s = stouffer(pool, batchsize = 10000)
+      print(poolr_s)
+      df_poolr[i, "stoufer"] = poolr_s$p
+    }
+    print_table_html(df_poolr, pval_color)
+    print_table_latex(df_poolr, pval_color, col_list=c(1,2,3))
   }
-  print_table_html(df_poolr, pval_color)
-  print_table_latex(df_poolr, pval_color, col_list=c(1,2,3))
-
   ##########
   print_separator()
 
-  for (i in seq(0, 2))
+  matlabDir = "data_matlab/"
+  if (METHOD2)
   {
-    if (i == 0)
-      str_subject = ""
-    else
-      str_subject = paste0(i)
-    end
+    for (i in seq(0, 2))
+    {
+      if (i == 0)
+        str_subject = ""
+      else
+        str_subject = paste0(i)
+      end
 
-    writeLines(paste0("<h3>NVM", str_subject, "</h3>"))
-    df_pca = load_data(paste0("dataset_pdc_pvals_NVM", str_subject, ".tsv"))
-    make_table_pool_pvals(df_pca)
+      for (order in seq(2, 4))
+      {
+        writeLines(paste0("<h3>NVM", str_subject, ", order = ", order, "</h3>"))
+        df_pca = load_data(paste0(matlabDir, "dataset_pdc_pvals_NVM", str_subject, "_order", order, ".tsv"))
+        if (order == 2)
+          df_pval_nvm = make_table_pool_pvals(df_pca)
+        else
+          df_pval_nvm = cbind(df_pval_nvm, make_table_pool_pvals(df_pca)[,2:3])
 
-    writeLines(paste("<h3>SI", str_subject, "</h3>", sep=""))
-    df_pca = load_data(paste0("dataset_pdc_pvals_SI", str_subject, ".tsv"))
-    make_table_pool_pvals(df_pca)
+        writeLines(paste("<h3>SI", str_subject, ", order = ", order, "</h3>", sep=""))
+        df_pca = load_data(paste0(matlabDir, "dataset_pdc_pvals_SI", str_subject, "_order", order, ".tsv"))
+        if (order == 2)
+          df_pval_si = make_table_pool_pvals(df_pca)
+        else
+          df_pval_si = cbind(df_pval_si, make_table_pool_pvals(df_pca)[,2:3])
 
-    writeLines(paste("<h3>IImitator", str_subject, "</h3>", sep=""))
-    df_pca = load_data(paste0("dataset_pdc_pvals_IImitator", str_subject, ".tsv"))
-    make_table_pool_pvals(df_pca)
+        writeLines(paste("<h3>IImitator", str_subject, ", order = ", order, "</h3>", sep=""))
+        df_pca = load_data(paste0(matlabDir, "dataset_pdc_pvals_IImitator", str_subject, "_order", order, ".tsv"))
+        if (order == 2)
+          df_pval_ii = make_table_pool_pvals(df_pca)
+        else
+          df_pval_ii = cbind(df_pval_ii, make_table_pool_pvals(df_pca)[,2:3])
+      }
+      writeLines(paste0("<h3>NVM", str_subject, ", all orders</h3>"))
+      print_table_html(df_pval_nvm, pval_color)
+      print_table_latex(df_pval_nvm, pval_color)
+
+      writeLines(paste0("<h3>SI", str_subject, ", all orders</h3>"))
+      print_table_html(df_pval_si, pval_color)
+      print_table_latex(df_pval_si, pval_color)
+
+      writeLines(paste0("<h3>IImitator", str_subject, ", all orders</h3>"))
+      print_table_html(df_pval_ii, pval_color)
+      print_table_latex(df_pval_ii, pval_color)
+    }
   }
 
   ##########

@@ -57,6 +57,7 @@ print_table_latex <- function(tab, cs=NULL, col_list=NULL)
         }
         else
         {
+          s = gsub("_", "\\\\_", s)
           writeLines(paste0("      ", colsep, s))
         }
       }

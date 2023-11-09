@@ -9,6 +9,9 @@ library(stringr)
 #ggplot
 library(ggplot2)
 
+#rollapply
+library(zoo)
+
 source('const.R')
 source('report.R')
 
@@ -23,8 +26,10 @@ df_role = load_data(filename_dataset_role)
 confidence = 0.95
 prompt     = 0
 inputFile  = filename_dataset
-outputDir  = "saida"
-outputFile = "report.html"
+outputDir  = "saida_fujita"
+outputFile = "report_fujita.html"
+#outputDir  = "saida"
+#outputFile = "report.html"
 
 if (REPORT)
 {

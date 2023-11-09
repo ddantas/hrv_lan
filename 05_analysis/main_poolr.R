@@ -10,8 +10,8 @@ df_pvals = load_data("dataset_pvals.tsv")
 
 confidence = 0.95
 prompt     = 0
-inputFile     = filename_dataset
-outputDir      = "saida"
+inputFile     = filename_dataset_pvals
+outputDir      = "saida_fujita"
 outputFile1     = "report_poolr1.html"
 outputFile2     = "report_poolr2.html"
 

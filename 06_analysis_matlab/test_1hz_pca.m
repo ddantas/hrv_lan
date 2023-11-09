@@ -1,6 +1,6 @@
 
 IS_RANKED = true;
-maxIP = 3;
+maxIP = 2; %2, 3 and 4
 
 fr = 1;
 
@@ -15,8 +15,9 @@ intervals = {       1:fr*t(1)-1, ...
               fr*t(4):fr*t(5)-1, ...
               fr*t(5):fr*t(6)-1 };
 
-foldername = "../05_analysis/";
-filename   = foldername + "dataset.tsv";
+folder_in  = "../05_analysis/";
+folder_out = "../05_analysis/data_matlab/";
+filename   = folder_in + "dataset.tsv";
 filename   = "dataset.csv";
 %df_full = struct2table(tdfread(filename, "\t"))
 %df_full.Properties.VariableNames
@@ -31,121 +32,131 @@ colnames = df_full.Properties.VariableNames;
 
 % id_subject = 1 or 2: Separate subjects in two independent groups
 % id_subject = 0:      Merge both subjects
-id_subject = 2;
+id_subject = 1;
 
 % matriz singular:
 %list_folder = [4, 42, 44, 48];
 list_folder = [2, 4, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48];
 %list_folder = [2, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 46];
 %list_folder = [2];
-%for id_label = [2, 4, 5]
-for id_label = 5:5
-  n_folders = 0
-  close all
-  list_nh_count = [];
-  list_nh_pvals = {};
-  list_nh_tr    = {};
-  list_hn_count = [];
-  list_hn_pvals = {};
-  list_hn_tr    = {};
 
-  for id_folder = list_folder
-    val_folder = sprintf("b%03d", id_folder);
-    if (mod(id_folder, 4) == 2)
-      labels = labels1;
-      if id_subject == 2
-        continue
-      end
-    else
-      labels = labels2;
-      if id_subject == 1
-        continue
-      end
-    end
-    str_label = labels{id_label};
-    n_folders = n_folders + 1
-    disp("********************")
-    disp(id_folder)
-    disp(n_folders)
-    disp("********************")
+for id_subject = [0, 1, 2]
+  for maxIP = [2, 3, 4]
+    for id_label = [2, 4, 5] % ['NVM', 'SI', 'IImitator?']
+%for id_subject = 1:1
+%  for maxIP = 2:2
+%    for id_label = 5:5 %['IImitator?']
+      n_folders = 0
+      close all
+      list_count = [];
+      list_tr    = {};
+      list_pdc_pvals = {};
+      list_pdc_vals   = {};
 
-    str_folder = sprintf('b%03d', id_folder);
-    str_title = sprintf('ex%03d_%s', id_folder, str_label);
-    disp(str_title)
-    rows   = (df_full.folder == str_folder & df_full.annotator == "dd" & df_full.label == str_label);
-    nn1    = df_full(rows, {'nn_subj1_ecg_linear'});
-    nn2    = df_full(rows, {'nn_subj2_ecg_linear'});
-    hands1_arr = table2array(  df_full( rows, {'subj1_flow_l_cx', 'subj1_flow_l_cy', 'subj1_flow_r_cx', 'subj1_flow_r_cy'} )  );
-    hands2_arr = table2array(  df_full( rows, {'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'} )  );
-    % In the Induced Imitation blocks, compare imitator versus model
-    if (id_label == 5)
-      if (mod(id_folder, 4) == 1)
+      for id_folder = list_folder
+        val_folder = sprintf("b%03d", id_folder);
+        if (mod(id_folder, 4) == 2)
+          labels = labels1;
+          if id_subject == 2
+            continue
+          end
+        else
+          labels = labels2;
+          if id_subject == 1
+            continue
+          end
+        end
+        str_label = labels{id_label};
+        n_folders = n_folders + 1
+        disp("********************")
+        disp(id_folder)
+        disp(n_folders)
+        disp("********************")
+
+        str_folder = sprintf('b%03d', id_folder);
+        str_title = sprintf('ex%03d_%s', id_folder, str_label);
+        disp(str_title)
+        rows   = (df_full.folder == str_folder & df_full.annotator == "dd" & df_full.label == str_label);
+        nn1    = df_full(rows, {'nn_subj1_ecg_linear'});
+        nn2    = df_full(rows, {'nn_subj2_ecg_linear'});
         hands1_arr = table2array(  df_full( rows, {'subj1_flow_l_cx', 'subj1_flow_l_cy', 'subj1_flow_r_cx', 'subj1_flow_r_cy'} )  );
         hands2_arr = table2array(  df_full( rows, {'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'} )  );
-      else
-        hands2_arr = table2array(  df_full( rows, {'subj1_flow_l_cx', 'subj1_flow_l_cy', 'subj1_flow_r_cx', 'subj1_flow_r_cy'} )  );
-        hands1_arr = table2array(  df_full( rows, {'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'} )  );
+        % In the Induced Imitation blocks, compare imitator versus model
+        if (id_label == 5)
+          if (mod(id_folder, 4) == 1)
+            hands1_arr = table2array(  df_full( rows, {'subj1_flow_l_cx', 'subj1_flow_l_cy', 'subj1_flow_r_cx', 'subj1_flow_r_cy'} )  );
+            hands2_arr = table2array(  df_full( rows, {'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'} )  );
+          else
+            hands2_arr = table2array(  df_full( rows, {'subj1_flow_l_cx', 'subj1_flow_l_cy', 'subj1_flow_r_cx', 'subj1_flow_r_cy'} )  );
+            hands1_arr = table2array(  df_full( rows, {'subj2_flow_l_cx', 'subj2_flow_l_cy', 'subj2_flow_r_cx', 'subj2_flow_r_cy'} )  );
+          end
+        end
+        coeff1 = pca(hands1_arr);
+        coeff2 = pca(hands2_arr);
+        hands1_arrb = hands1_arr * coeff1;
+        hands2_arrb = hands2_arr * coeff2;
+        hands1 = array2table(hands1_arrb(:,1), 'VariableNames', {'hand1'});
+        hands2 = array2table(hands2_arrb(:,1), 'VariableNames', {'hand2'});
+        if (IS_RANKED)
+          [~,~,nn1] = unique(nn1);
+          [~,~,nn2] = unique(nn2);
+          [~,~,hands1] = unique(hands1);
+          [~,~,hands2] = unique(hands2);
+          nn1    = array2table(nn1);
+          nn2    = array2table(nn2);
+          hands1 = array2table(hands1);
+          hands2 = array2table(hands2);
+        end
+        arr = table2array(horzcat(nn1, nn2, hands1, hands2));
+        chLabels = {'nn1';'nn2';'hand1';'hand2'};
+
+        [Tr_gct, pValue_gct, Tr_igct, pValue_igct, c] = pdc(arr, str_label, fr, chLabels, maxIP);
+
+        list_count(end+1) = sum(sum(Tr_gct(1:4, 1:4)));
+        list_tr{end+1}    = Tr_gct(1:4, 1:4);
+        list_pdc_pvals{end+1} = pValue_gct(1:4, 1:4);
+        list_pdc_vals{end+1}  = sum(c.pdc, 3);
+
+        %compare_cpsd(u, str_title)
+        %compare_cpsd2(u, str_title)
       end
-    end
-    coeff1 = pca(hands1_arr);
-    coeff2 = pca(hands2_arr);
-    hands1_arrb = hands1_arr * coeff1;
-    hands2_arrb = hands2_arr * coeff2;
-    hands1 = array2table(hands1_arrb(:,1), 'VariableNames', {'hand1'});
-    hands2 = array2table(hands2_arrb(:,1), 'VariableNames', {'hand2'});
-    if (IS_RANKED)
-      [~,~,nn1] = unique(nn1);
-      [~,~,nn2] = unique(nn2);
-      [~,~,hands1] = unique(hands1);
-      [~,~,hands2] = unique(hands2);
-      nn1    = array2table(nn1);
-      nn2    = array2table(nn2);
-      hands1 = array2table(hands1);
-      hands2 = array2table(hands2);
-    end
-    arr = table2array(horzcat(nn1, nn2, hands1, hands2));
-    chLabels = {'nn1';'nn2';'hand1';'hand2'};
+      %tilefigs
 
-    [Tr_gct, pValue_gct, Tr_igct, pValue_igct] = pdc(arr, str_label, fr, chLabels, maxIP);
+      list_pdc_pvals{1}
 
-    list_nh_count(end+1) = sum(sum(Tr_gct(1:4, 1:4)));
-    list_nh_pvals{end+1} = pValue_gct(1:4, 1:4);
-    list_nh_tr{end+1}    = Tr_gct(1:4, 1:4);
-
-    %compare_cpsd(u, str_title)
-    %compare_cpsd2(u, str_title)
-  end
-  %tilefigs
-
-  list_nh_pvals{1}
-
-  array_columns = {}
-  array_data = zeros(n_folders, 12)
-  j = 0
-  for j_n = 1:4
-    for j_h = 1:4
-      if (j_n == j_h)
-        continue
+      array_columns = {}
+      array_pdc_pvals = zeros(n_folders, 12)
+      array_pdc_vals  = zeros(n_folders, 12)
+      j = 0
+      for j_n = 1:4
+        for j_h = 1:4
+          if (j_n == j_h)
+            continue
+          end
+              j = j + 1;
+          array_columns{end + 1} = strcat(chLabels{j_n}, '\_to\_', chLabels{j_h});
+          array_columns{end} = strrep(array_columns{end}, '\_', '_');
+          for i = 1:n_folders
+            array_pdc_pvals(i, j) = list_pdc_pvals{i}(j_h, j_n);
+            array_pdc_vals(i, j)  = list_pdc_vals{i}(j_h, j_n);
+          end
+        end
       end
-      j = j + 1;
-      array_columns{end + 1} = strcat(chLabels{j_n}, '\_to\_', chLabels{j_h});
-      array_columns{end} = strrep(array_columns{end}, '\_', '_');
-      for i = 1:n_folders
-        array_data(i, j) = list_nh_pvals{i}(j_h, j_n);
+
+      if id_label == 5
+        str_label = 'IImitator'
       end
+      if id_subject > 0
+        str_label = str_label + string(id_subject)
+      end
+
+      df_pdc_pvals = array2table(array_pdc_pvals, 'VariableNames', array_columns)
+      filename     = folder_out + "dataset_pdc_pvals_" + str_label + "_order" + maxIP + ".tsv";
+      writetable(df_pdc_pvals, filename, 'delimiter', '\t', 'FileType', 'text');
+
+      df_pdc_vals  = array2table(array_pdc_vals, 'VariableNames', array_columns)
+      filename     = folder_out + "dataset_pdc_vals_" + str_label + "_order" + maxIP + ".tsv";
+      writetable(df_pdc_vals, filename, 'delimiter', '\t', 'FileType', 'text');
     end
   end
-
-  if id_label == 5
-    str_label = 'IImitator'
-  end
-  if id_subject > 0
-    str_label = str_label + string(id_subject) 
-  end
-  
-  df_pdc_pvals = array2table(array_data, 'VariableNames', array_columns)
-  filename   = foldername + "dataset_pdc_pvals_" + str_label + ".tsv";
-  writetable(df_pdc_pvals, filename, 'delimiter', '\t', 'FileType', 'text');
-
 end
-

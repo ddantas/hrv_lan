@@ -48,17 +48,17 @@ corr_color <- function(corr, format=HTML)
   if (format == HTML)
   {
     result = paste("rgb(",
-                   as.integer( (pval_abs * r) + ((1-pval_abs) * zr_r) ), ",",
-                   as.integer( (pval_abs * g) + ((1-pval_abs) * zr_g) ), ",",
-                   as.integer( (pval_abs * b) + ((1-pval_abs) * zr_b) ), ")",
+                   as.integer( (corr_abs * r) + ((1-corr_abs) * zr_r) ), ",",
+                   as.integer( (corr_abs * g) + ((1-corr_abs) * zr_g) ), ",",
+                   as.integer( (corr_abs * b) + ((1-corr_abs) * zr_b) ), ")",
                    sep = "")
   }
   else
   {
     result = paste("[RGB]{",
-                   as.integer( (pval_abs * r) + ((1-pval_abs) * zr_r) ), ",",
-                   as.integer( (pval_abs * g) + ((1-pval_abs) * zr_g) ), ",",
-                   as.integer( (pval_abs * b) + ((1-pval_abs) * zr_b) ), "}",
+                   as.integer( (corr_abs * r) + ((1-corr_abs) * zr_r) ), ",",
+                   as.integer( (corr_abs * g) + ((1-corr_abs) * zr_g) ), ",",
+                   as.integer( (corr_abs * b) + ((1-corr_abs) * zr_b) ), "}",
                    sep = "")
   }
   return(result)

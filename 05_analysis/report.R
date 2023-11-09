@@ -1,3 +1,30 @@
+        print_fujita_table4 <- function(df_pvals_wide, df_pvals, outputDir, outputSubdir, fujita_title, to_col)
+        {
+          corr_to_col = paste0("corr_", to_col)
+          pval_to_col = paste0("pval_", to_col)
+          print("########################################")
+          print(to_col)
+          print(corr_to_col)
+          print(pval_to_col)
+          print("########################################")
+
+          writeLines("...")
+          writeLines(paste0("<h3>Residual Spearman correlation ", fujita_title))
+          df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == corr_to_col,]
+          print_table_html(df_tmp, corr_color)
+          df_hist = data.frame(df_pvals[df_pvals$to_col==corr_to_col, "val"])
+          str_title = paste(col1, "_", corr_to_col, sep="")
+          plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="Spearman correlation", label1="Data")
+
+          writeLines("...")
+          writeLines(paste0("<h3>Residual P-values of Spearman correlation ", fujita_title))
+          df_tmp = df_pvals_wide[df_pvals_wide$col == col1 & df_pvals_wide$to_col == pval_to_col,]
+          print_table_html(df_tmp, pval_color)
+          df_hist = data.frame(df_pvals[df_pvals$to_col==pval_to_col, "val"])
+          str_title = paste(col1, "_", pval_to_col, sep="")
+          plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="P-values of Spearman correlation", label1="Data")
+        }
+
 report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, confidence=0.95, prompt=1)
 {
   source('print_separator.R')
@@ -16,11 +43,12 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   source('script.R')
   source('plot_hist.R')
 
-  DANTAS = FALSE
+  DANTAS = TRUE
   DANTAS_PDC = FALSE
   DANTAS_CORR = TRUE
   DANTAS_REGR = TRUE
   FELIPE = FALSE
+  FUJITA_CORR = TRUE
   
   outputFullname = paste(outputDir, "/", outputFile, sep="")
   sink(file=NULL)
@@ -162,6 +190,8 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
     col_hand2 = "subj2_flow_l_cx"
     hand_pos_data1 = df[rows, col_hand1, drop=FALSE]
     hand_pos_data2 = df[rows, col_hand2, drop=FALSE]
+    hand_pos_data_4c_1 = df[rows, c("subj1_flow_l_cx", "subj1_flow_l_cy", "subj1_flow_r_cx", "subj1_flow_r_cy"), drop=FALSE]
+    hand_pos_data_4c_2 = df[rows, c("subj2_flow_l_cx", "subj2_flow_l_cy", "subj2_flow_r_cx", "subj2_flow_r_cy"), drop=FALSE]
     subj = c(1, 2)
 
     IsImit = df[rows, "IsImit", drop=FALSE]
@@ -210,6 +240,153 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
       }
       if ( (DANTAS_PDC | DANTAS_CORR) & ic >= ic_min)
       {
+      }
+      if (FUJITA_CORR & ic >= ic_min & !grepl("lude", str_title))
+      {
+        folder = strsplit(exp_label, '_')[[1]][1]
+        label = strsplit(exp_label, '_')[[1]][2]
+        #print(sum(is.na(hand_pos_data_4c_1)))
+        #print(paste0("ic = ", ic))
+        if (sum(is.na(hand_pos_data_4c_1))) #Replace NA with previous value in array
+        {
+          arr_witch = which(is.na(hand_pos_data_4c_1), arr.ind=TRUE)
+          for (i_witch in seq(nrow(arr_witch)))
+          {
+            hand_pos_data_4c_1[arr_witch[i_witch,1], arr_witch[i_witch,2]] = hand_pos_data_4c_1[arr_witch[i_witch,1] - 1, arr_witch[i_witch,2]]
+          }
+        }
+        if (sum(is.na(hand_pos_data_4c_2))) #Replace NA with previous value in array
+        {
+          arr_witch = which(is.na(hand_pos_data_4c_2), arr.ind=TRUE)
+          for (i_witch in seq(nrow(arr_witch)))
+          {
+            hand_pos_data_4c_2[arr_witch[i_witch,1], arr_witch[i_witch,2]] = hand_pos_data_4c_2[arr_witch[i_witch,1] - 1, arr_witch[i_witch,2]]
+          }
+        }
+
+        data_pca1 = prcomp(hand_pos_data_4c_1, scale=FALSE)
+        data_pca2 = prcomp(hand_pos_data_4c_2, scale=FALSE)
+        hand_pos_data_pca1 = data_pca1$x[,1]
+        hand_pos_data_pca2 = data_pca2$x[,1]
+        df_regr = cbind(data1, data2, hand_pos_data_pca1, hand_pos_data_pca2)
+        colheartA = col1
+        colheartB = col2
+        colhandA  = "hand_pos_data_pca1"
+        colhandB  = "hand_pos_data_pca2"
+
+        # F1 hand A heart A
+        formula_F1handA = paste0(colhandA, " ~ " , colhandB, " + ", colheartB)
+        glm_F1handA = glm(formula_F1handA, df_regr, family=gaussian())
+        residual_F1handA = glm_F1handA$residuals
+
+        formula_F1heartA = paste0(colheartA, " ~ " , colhandB, " + ", colheartB)
+        glm_F1heartA = glm(formula_F1heartA, df_regr, family=gaussian())
+        residual_F1heartA = glm_F1heartA$residuals
+
+        result = correlationts(residual_F1handA, residual_F1heartA)
+        writeLines(paste0("Regarding correlation between hand of Subject A and heart of Subject A:\n"))
+        writeLines(paste0("Correlation       = ", result$coef))
+        writeLines(paste0("Abs. Correlation  = ", result$abs_coef))
+        writeLines(paste0("P-value           = ", result$p.value))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr_F1handAheartA", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr_F1handAheartA", result$abs_coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval_F1handAheartA", result$p.value)
+
+        # F1 hand B heart B
+        formula_F1handB = paste0(colhandB, " ~ " , colhandA, " + ", colheartA)
+        glm_F1handB = glm(formula_F1handB, df_regr, family=gaussian())
+        residual_F1handB = glm_F1handB$residuals
+
+        formula_F1heartB = paste0(colheartB, " ~ " , colhandA, " + ", colheartA)
+        glm_F1heartB = glm(formula_F1heartB, df_regr, family=gaussian())
+        residual_F1heartB = glm_F1heartB$residuals
+
+        result = correlationts(residual_F1handB, residual_F1heartB)
+        writeLines(paste0("Regarding correlation between hand of Subject B and heart of Subject B:\n"))
+        writeLines(paste0("Correlation       = ", result$coef))
+        writeLines(paste0("Abs. Correlation  = ", result$abs_coef))
+        writeLines(paste0("P-value           = ", result$p.value))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr_F1handBheartB", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr_F1handBheartB", result$abs_coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval_F1handBheartB", result$p.value)
+
+        # F2 hand A heart B
+        formula_F1handA = paste0(colhandA, " ~ " , colhandB, " + ", colheartA)
+        glm_F1handA = glm(formula_F1handA, df_regr, family=gaussian())
+        residual_F1handA = glm_F1handA$residuals
+
+        formula_F1heartB = paste0(colheartB, " ~ " , colhandB, " + ", colheartA)
+        glm_F1heartB = glm(formula_F1heartB, df_regr, family=gaussian())
+        residual_F1heartB = glm_F1heartB$residuals
+
+        result = correlationts(residual_F1handA, residual_F1heartB)
+        writeLines(paste0("Regarding correlation between hand of Subject A and heart of Subject B:\n"))
+        writeLines(paste0("Correlation       = ", result$coef))
+        writeLines(paste0("Abs. Correlation  = ", result$abs_coef))
+        writeLines(paste0("P-value           = ", result$p.value))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr_F2handAheartB", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr_F2handAheartB", result$abs_coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval_F2handAheartB", result$p.value)
+
+        # F2 hand B heart A
+        formula_F1handB = paste0(colhandB, " ~ " , colhandA, " + ", colheartB)
+        glm_F1handB = glm(formula_F1handB, df_regr, family=gaussian())
+        residual_F1handB = glm_F1handB$residuals
+
+        formula_F1heartA = paste0(colheartA, " ~ " , colhandA, " + ", colheartB)
+        glm_F1heartA = glm(formula_F1heartA, df_regr, family=gaussian())
+        residual_F1heartA = glm_F1heartA$residuals
+
+        result = correlationts(residual_F1handB, residual_F1heartA)
+        writeLines(paste0("Regarding correlation between hand of Subject B and heart of Subject A:\n"))
+        writeLines(paste0("Correlation       = ", result$coef))
+        writeLines(paste0("Abs. Correlation  = ", result$abs_coef))
+        writeLines(paste0("P-value           = ", result$p.value))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr_F2handBheartA", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr_F2handBheartA", result$abs_coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval_F2handBheartA", result$p.value)
+
+        # F3 hand A hand B
+        formula_F1handA = paste0(colhandA, " ~ " , colheartB, " + ", colheartA)
+        glm_F1handA = glm(formula_F1handA, df_regr, family=gaussian())
+        residual_F1handA = glm_F1handA$residuals
+
+        formula_F1handB = paste0(colhandB, " ~ " , colheartB, " + ", colheartA)
+        glm_F1handB = glm(formula_F1handB, df_regr, family=gaussian())
+        residual_F1handB = glm_F1handB$residuals
+
+        result = correlationts(residual_F1handA, residual_F1handB)
+        writeLines(paste0("Regarding correlation between hand of Subject A and hand of Subject B:\n"))
+        writeLines(paste0("Correlation       = ", result$coef))
+        writeLines(paste0("Abs. Correlation  = ", result$abs_coef))
+        writeLines(paste0("P-value           = ", result$p.value))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr_F3handAhandB", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr_F3handAhandB", result$abs_coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval_F3handAhandB", result$p.value)
+
+        # F4 heart A heart B
+        formula_F1heartA = paste0(colhandA, " ~ " , colhandB, " + ", colhandA)
+        glm_F1heartA = glm(formula_F1heartA, df_regr, family=gaussian())
+        residual_F1heartA = glm_F1heartA$residuals
+
+        formula_F1heartB = paste0(colheartB, " ~ " , colhandB, " + ", colhandA)
+        glm_F1heartB = glm(formula_F1heartB, df_regr, family=gaussian())
+        residual_F1heartB = glm_F1heartB$residuals
+
+        result = correlationts(residual_F1heartA, residual_F1heartB)
+        writeLines(paste0("Regarding correlation between heart of Subject A and heart of Subject B:\n"))
+        writeLines(paste0("Correlation       = ", result$coef))
+        writeLines(paste0("Abs. Correlation  = ", result$abs_coef))
+        writeLines(paste0("P-value           = ", result$p.value))
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "corr_F4heartAheartB", result$coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "abscorr_F4heartAheartB", result$abs_coef)
+        df_pvals[nrow(df_pvals) + 1,] = list(folder, label, col1, "pval_F4heartAheartB", result$p.value)
+
+
+        #formula_F1handAheartA = paste(col1, " ~ subj1_flow_l_cx + subj1_flow_l_cy + subj1_flow_r_cx + subj1_flow_r_cy + subj2_flow_l_cx + subj2_flow_l_cy + subj2_flow_r_cx + subj2_flow_r_cy")
+        #glm_data1 = glm(formula_data1, df_regr, family=gaussian())
+        #residual1 = glm_data1$residuals
+
       }
       if (DANTAS_CORR & ic >= ic_min)
       {
@@ -387,7 +564,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
 
   #print(df_pvals)
   
-  if (DANTAS_PDC | DANTAS_CORR | DANTAS_REGR)
+  if (DANTAS_PDC | DANTAS_CORR | DANTAS_REGR | FUJITA_CORR)
   {
     df_pvals_wide = reshape(df_pvals, v.names="val", timevar="folder", idvar=c("label", "col", "to_col"), direction="wide")
     #print(df_pvals_wide)
@@ -488,6 +665,59 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
         df_hist = data.frame(df_pvals[df_pvals$to_col=="resid_pval12", "val"])
         str_title = paste(col1, "_", "resid_pval12", sep="")
         plot_hist(df_hist, str_title, prompt, outputDir, outputSubdir, xlabel="P-values of Spearman correlation", label1="Data")
+      }
+
+      if (FUJITA_CORR)
+      {
+        fujita_title = paste0("from hand A to heart A considering ", col1, " and ", col2)
+        to_col = "F1handAheartA"
+        print_fujita_table4(df_pvals_wide, df_pvals, outputDir, outputSubdir, fujita_title, to_col)
+
+        fujita_title = paste0("from hand B to heart B considering ", col1, " and ", col2)
+        to_col = "F1handBheartB"
+        print_fujita_table4(df_pvals_wide, df_pvals, outputDir, outputSubdir, fujita_title, to_col)
+
+        fujita_title = paste0("from hand A to heart B considering ", col1, " and ", col2)
+        to_col = "F2handAheartB"
+        print_fujita_table4(df_pvals_wide, df_pvals, outputDir, outputSubdir, fujita_title, to_col)
+
+        fujita_title = paste0("from hand B to heart A considering ", col1, " and ", col2)
+        to_col = "F2handBheartA"
+        print_fujita_table4(df_pvals_wide, df_pvals, outputDir, outputSubdir, fujita_title, to_col)
+
+        fujita_title = paste0("from hand A to hand B considering ", col1, " and ", col2)
+        to_col = "F3handAhandB"
+        print_fujita_table4(df_pvals_wide, df_pvals, outputDir, outputSubdir, fujita_title, to_col)
+
+        fujita_title = paste0("from heart A to heart B considering ", col1, " and ", col2)
+        to_col = "F4heartAheartB"
+        print_fujita_table4(df_pvals_wide, df_pvals, outputDir, outputSubdir, fujita_title, to_col)
+
+        outputFujita = "data_fujita/"
+        df_pvals_wide = reshape(df_pvals, v.names="val", timevar="to_col", idvar=c("label", "col", "folder"), direction="wide")
+        # NVM, SI, II
+        corr_list = c("val.corr_F1handAheartA", "val.corr_F1handBheartB", "val.corr_F2handAheartB", "val.corr_F2handBheartA", "val.corr_F3handAhandB", "val.corr_F4heartAheartB")
+        pval_list = c("val.pval_F1handAheartA", "val.pval_F1handBheartB", "val.pval_F2handAheartB", "val.pval_F2handBheartA", "val.pval_F3handAhandB", "val.pval_F4heartAheartB")
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="nvm", c(corr_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_corr_NVM.tsv"))
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="nvm", c(pval_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_pval_NVM.tsv"))
+
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="si", c(corr_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_corr_SI.tsv"))
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="si", c(pval_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_pval_SI.tsv"))
+
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="iimitator1", c(corr_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_corr_IImitator1.tsv"))
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="iimitator1", c(pval_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_pval_IImitator1.tsv"))
+
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="iimitator2", c(corr_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_corr_IImitator2.tsv"))
+        df_tmp = df_pvals_wide[df_pvals_wide$label=="iimitator2", c(pval_list)]
+        save_data(df_tmp, paste0(outputFujita, "dataset_fujita_pval_IImitator2.tsv"))
+
       }
     }
   }
@@ -680,6 +910,7 @@ report <- function(inputFile, outputFile, outputDir, df, df_stack, df_role, conf
   print_separator()
 
   cols = c(seq(10, 17), seq(21, 28))
+  cols = c(17)
   conditions = rbind(
     c("df$annotator == 'dd' & df$folder != ''",                  "all",  "Subject 1", "Subject 2"),
     c("df$annotator == 'dd' & df$folder %in% c('b002', 'b004')", "ex01", "Subject 1", "Subject 2"),
