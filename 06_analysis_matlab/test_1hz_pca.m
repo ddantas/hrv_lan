@@ -42,7 +42,8 @@ list_folder = [2, 4, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
 
 for id_subject = [0, 1, 2]
   for maxIP = [2, 3, 4]
-    for id_label = [2, 4, 5] % ['NVM', 'SI', 'IImitator?']
+    %for id_label = [2, 4, 5] % ['NVM', 'SI', 'IImitator?']
+    for id_label = [2, 3, 4, 5] % ['NVM', 'NVNM', 'SI', 'IImitator?']
 %for id_subject = 1:1
 %  for maxIP = 2:2
 %    for id_label = 5:5 %['IImitator?']
@@ -115,7 +116,7 @@ for id_subject = [0, 1, 2]
         list_count(end+1) = sum(sum(Tr_gct(1:4, 1:4)));
         list_tr{end+1}    = Tr_gct(1:4, 1:4);
         list_pdc_pvals{end+1} = pValue_gct(1:4, 1:4);
-        list_pdc_vals{end+1}  = sum(c.pdc, 3);
+        list_pdc_vals{end+1}  = sum(c.pdc, 3) / 128.0;
 
         %compare_cpsd(u, str_title)
         %compare_cpsd2(u, str_title)
